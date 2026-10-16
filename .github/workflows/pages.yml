@@ -25,12 +25,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Validate vocabulary data
+      - name: Validate data, version, changelog and cache list
         run: node scripts/validate.mjs
       - name: Prepare site
         run: |
           mkdir _site
-          cp -r index.html manifest.webmanifest sw.js .nojekyll assets data LICENSE _site/
+          cp -r index.html manifest.webmanifest sw.js version.js .nojekyll assets data LICENSE CHANGELOG.md _site/
+          # Stamp the build: "<run number>.<short commit>". This changes version.js on
+          # every deploy, so the service worker refreshes its cache and the app shows the update prompt.
+          sed -i "s/APP_BUILD = 'dev'/APP_BUILD = '${{ github.run_number }}.${GITHUB_SHA::7}'/" _site/version.js
+          grep APP_ _site/version.js
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

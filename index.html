@@ -4,34 +4,65 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>ศัพท์จำเป็น</title>
-  <meta name="description" content="เกมจำคำศัพท์จำเป็นหลายภาษา (อังกฤษ เกาหลี) แปลเป็นไทย ใช้ได้ฟรี">
+  <meta name="description" content="เกมจำคำศัพท์จำเป็นหลายภาษา (อังกฤษ เกาหลี ญี่ปุ่น) แปลเป็นไทย ใช้ได้ฟรี">
   <meta name="theme-color" content="#f6f4ff" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#14121f" media="(prefers-color-scheme: dark)">
   <meta name="color-scheme" content="light dark">
-  <!-- iOS / iPadOS home screen app -->
+  <script>
+    // Apply the saved theme before first paint to avoid a flash of the wrong theme.
+    try {
+      var th = (JSON.parse(localStorage.getItem('evocab.settings.v1')) || {}).theme;
+      if (th === 'light' || th === 'dark') document.documentElement.dataset.theme = th;
+    } catch (e) {}
+  </script>
+  <script src="version.js"></script>
+
+  <!-- Home Screen web app (iOS / iPadOS) -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="ศัพท์จำเป็น">
   <meta name="format-detection" content="telephone=no">
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="assets/icons/apple-touch-icon-167.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="assets/icons/apple-touch-icon-152.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="assets/icons/apple-touch-icon-120.png">
+  <!-- Launch screens: iPhone 16/17 Pro Max, iPad Air 11" and 13" (M2–M5) -->
+  <link rel="apple-touch-startup-image" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: light)" href="assets/icons/splash-iphone-pro-max-portrait-light.png">
+  <link rel="apple-touch-startup-image" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="assets/icons/splash-iphone-pro-max-portrait-dark.png">
+  <link rel="apple-touch-startup-image" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape) and (prefers-color-scheme: light)" href="assets/icons/splash-iphone-pro-max-landscape-light.png">
+  <link rel="apple-touch-startup-image" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape) and (prefers-color-scheme: dark)" href="assets/icons/splash-iphone-pro-max-landscape-dark.png">
+  <link rel="apple-touch-startup-image" media="(device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: light)" href="assets/icons/splash-ipad-air-11-portrait-light.png">
+  <link rel="apple-touch-startup-image" media="(device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: dark)" href="assets/icons/splash-ipad-air-11-portrait-dark.png">
+  <link rel="apple-touch-startup-image" media="(device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape) and (prefers-color-scheme: light)" href="assets/icons/splash-ipad-air-11-landscape-light.png">
+  <link rel="apple-touch-startup-image" media="(device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape) and (prefers-color-scheme: dark)" href="assets/icons/splash-ipad-air-11-landscape-dark.png">
+  <link rel="apple-touch-startup-image" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: light)" href="assets/icons/splash-ipad-air-13-portrait-light.png">
+  <link rel="apple-touch-startup-image" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: dark)" href="assets/icons/splash-ipad-air-13-portrait-dark.png">
+  <link rel="apple-touch-startup-image" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape) and (prefers-color-scheme: light)" href="assets/icons/splash-ipad-air-13-landscape-light.png">
+  <link rel="apple-touch-startup-image" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape) and (prefers-color-scheme: dark)" href="assets/icons/splash-ipad-air-13-landscape-dark.png">
+  <link rel="icon" type="image/png" sizes="64x64" href="assets/icons/favicon-64.png">
   <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
   <header class="app-header">
-    <button class="brand" type="button">
-      <span class="brand-logo" aria-hidden="true">🗣️</span>
-      <span class="brand-text">
-        <span class="brand-name">ศัพท์จำเป็น</span>
-        <span class="brand-tag">เกมจำคำศัพท์จำเป็นหลายภาษา</span>
-      </span>
-    </button>
+    <div class="header-inner">
+      <button class="brand" type="button">
+        <img class="brand-logo" src="assets/icons/icon-192.png" alt="" width="38" height="38">
+        <span class="brand-text">
+          <span class="brand-name">ศัพท์จำเป็น</span>
+          <span class="brand-tag">เกมจำคำศัพท์จำเป็นหลายภาษา</span>
+        </span>
+      </button>
+      <nav id="nav" class="nav" aria-label="เมนู"></nav>
+    </div>
   </header>
   <main id="screen" class="screen">
     <div class="loading" aria-busy="true">⏳</div>
   </main>
+  <div id="toast" aria-live="polite"></div>
   <noscript>กรุณาเปิดใช้งาน JavaScript</noscript>
   <script type="module" src="assets/js/app.js"></script>
 </body>
