@@ -1,9 +1,9 @@
 // App shell: routing, bottom tab bar, theme, version and update prompts.
-// Routes: #/ practice · #/progress[/<lang>] · #/help[/<section>] · #/settings · #/changelog
+// Routes: #/ home (practice setup) · #/progress[/<lang>] · #/help[/<section>] · #/settings · #/changelog
 import { settings, saveSettings, getLastVersion, setLastVersion } from './store.js';
 import { state, h, fill, render, loadIndex, setUiLang, toast } from './core.js';
 import { uiFor } from './i18n.js';
-import { renderPractice } from './practice.js';
+import { renderPractice, startPractice } from './practice.js';
 import { renderProgress } from './progress.js';
 import { renderSettings } from './settings.js';
 import { renderHelp, renderChangelog } from './info.js';
@@ -13,7 +13,7 @@ import { icon } from './icons.js';
 import { APP_VERSION } from './app-info.js';
 
 const TABS = [
-  ['', 'practice', 'navPractice'],
+  ['', 'home', 'navHome'],
   ['progress', 'progress', 'navProgress'],
   ['help', 'guide', 'navHelp'],
   ['settings', 'settings', 'navSettings'],
@@ -22,12 +22,17 @@ const TABS = [
 function renderTabBar(active) {
   const t = state.t;
   document.title = t.appName;
-  fill(document.getElementById('tabbar'), TABS.map(([page, ic, key]) => {
+  const tabs = TABS.map(([page, ic, key]) => {
     const on = page === active;
     return h('a', { href: `#/${page}`, class: `tab${on ? ' active' : ''}`, 'aria-current': on ? 'page' : null },
       icon(ic, { size: 26 }),
       h('span', { class: 'tab-label' }, t[key]));
-  }));
+  });
+  // Start is the main action, so it sits in the middle of the bar on every tab.
+  const start = h('button', { type: 'button', class: 'tab tab-start', onclick: startPractice },
+    h('span', { class: 'start-fab', 'aria-hidden': 'true' }, icon('play', { size: 24, fill: true })),
+    h('span', { class: 'tab-label' }, t.start));
+  fill(document.getElementById('tabbar'), tabs.slice(0, 2), start, tabs.slice(2));
 }
 
 function route() {
@@ -45,11 +50,6 @@ function route() {
   if (page === 'settings') return renderSettings();
   if (page === 'changelog') return renderChangelog();
   return renderPractice();
-}
-
-function goHome() {
-  if (location.hash && location.hash !== '#/') location.hash = '#/';
-  else route();
 }
 
 function announceVersion() {
@@ -95,7 +95,8 @@ async function boot() {
     settings.lang = state.index.learn[0].code;
     saveSettings();
   }
-  setExitHandler(goHome);
+  // Leaving a game redraws the page it was started from (games don't change the hash).
+  setExitHandler(route);
   window.addEventListener('hashchange', route);
   route();
   announceVersion();

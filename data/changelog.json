@@ -1,5 +1,23 @@
 [
   {
+    "version": "1.3.0",
+    "date": "2026-10-16",
+    "changes": {
+      "th": [
+        "ย้ายปุ่ม \"เริ่มฝึก\" ไปไว้ตรงกลางแถบเมนูด้านล่าง เป็นปุ่มวงกลมที่เด่นกว่าเมนูอื่น กดได้จากทุกหน้า (เริ่มด้วยภาษา โหมด และชุดคำศัพท์ที่เลือกไว้ล่าสุด)",
+        "เปลี่ยนชื่อแท็บ \"ฝึก\" เป็น \"หน้าหลัก\" พร้อมไอคอนบ้าน",
+        "หน้าหลักแสดงสรุปใต้รายการชุดคำศัพท์ว่าเลือกไว้กี่ชุด กี่คำ และรอบละกี่ข้อ",
+        "จบเกมหรือออกจากเกมแล้ว จะกลับไปหน้าที่เปิดอยู่ก่อนเริ่มเล่น"
+      ],
+      "en": [
+        "The Start button now sits in the middle of the bottom tab bar as a prominent round button, so you can start from any screen (with the language, mode and sets you chose last)",
+        "The \"Practice\" tab is now \"Home\", with a house icon",
+        "Home shows how many sets, words and questions per round you have selected, under the word sets",
+        "After a game you return to the screen you started it from"
+      ]
+    }
+  },
+  {
     "version": "1.2.0",
     "date": "2026-10-16",
     "changes": {

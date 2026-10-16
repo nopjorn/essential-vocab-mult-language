@@ -2,6 +2,22 @@
 
 <!-- Generated from data/changelog.json by `node scripts/bump-version.mjs --sync`. Do not edit by hand. -->
 
+## [1.3.0] - 2026-10-16
+
+- ย้ายปุ่ม "เริ่มฝึก" ไปไว้ตรงกลางแถบเมนูด้านล่าง เป็นปุ่มวงกลมที่เด่นกว่าเมนูอื่น กดได้จากทุกหน้า (เริ่มด้วยภาษา โหมด และชุดคำศัพท์ที่เลือกไว้ล่าสุด)
+- เปลี่ยนชื่อแท็บ "ฝึก" เป็น "หน้าหลัก" พร้อมไอคอนบ้าน
+- หน้าหลักแสดงสรุปใต้รายการชุดคำศัพท์ว่าเลือกไว้กี่ชุด กี่คำ และรอบละกี่ข้อ
+- จบเกมหรือออกจากเกมแล้ว จะกลับไปหน้าที่เปิดอยู่ก่อนเริ่มเล่น
+
+<details><summary>English</summary>
+
+- The Start button now sits in the middle of the bottom tab bar as a prominent round button, so you can start from any screen (with the language, mode and sets you chose last)
+- The "Practice" tab is now "Home", with a house icon
+- Home shows how many sets, words and questions per round you have selected, under the word sets
+- After a game you return to the screen you started it from
+
+</details>
+
 ## [1.2.0] - 2026-10-16
 
 - ออกแบบหน้าตาใหม่ให้เหมือนแอปบนมือถือ: แถบเมนูไอคอนด้านล่าง (ฝึก · ความคืบหน้า · คู่มือ · ตั้งค่า) และหัวข้อหน้าขนาดใหญ่แบบ iOS

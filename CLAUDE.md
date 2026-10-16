@@ -11,8 +11,9 @@ Safari or as a Home Screen app.
 - Learn: English 🇬🇧 (14 sets, 308 words), Korean 🇰🇷 (15 sets, 325), Japanese 🇯🇵 (14 sets, 318)
 - Translate into: Thai (all languages); English (Korean and Japanese)
 - 6 modes: flash, quiz, reverse, listen, type, match; Leitner boxes 0–5 (box ≥ 3 = mastered)
-- Native-app style UI: bottom tab bar (Practice · Progress · Guide · Settings), iOS large titles,
-  inset grouped lists, full-screen games, swipeable flashcards (right = known, left = not yet)
+- Native-app style UI: bottom tab bar (Home · Progress · **Start** · Guide · Settings; Start is a raised round
+  button that starts a round from any tab), iOS large titles, inset grouped lists, full-screen games,
+  swipeable flashcards (right = known, left = not yet)
 - UI language follows the translation language (Thai/English); light/dark/system theme
 
 ## ✅ Every update must include
@@ -41,10 +42,12 @@ sw.js                   offline cache; cache name = version + build; CORE file l
 manifest.webmanifest    PWA manifest (icons, maskable icon, shortcuts)
 assets/css/style.css    all styles; tokens on :root, dark tokens for data-theme / prefers-color-scheme
 assets/js/
-  app.js        router (#/, #/progress[/lang], #/help[/section], #/settings, #/changelog), tab bar, update toasts, SW
+  app.js        router (#/, #/progress[/lang], #/help[/section], #/settings, #/changelog), tab bar + Start button,
+                update toasts, SW; leaving a game re-routes to the page it was started from
   core.js       shared state (index, ui strings, navId), h() DOM helper, fill/render, loaders, pageHead/groupTitle,
                 speaker/term widgets, toast
-  practice.js   Practice tab: language switch, summary card, mode tiles, set list, fixed Start button
+  practice.js   Home tab: language switch, summary card, mode tiles, set list + selection summary;
+                startPractice() (used by the tab bar Start button; sends you Home if the selection can't start)
   settings.js   Settings tab: translation/app language, questions per round, reading, auto speak, theme,
                 per-language reset, about (version, what's new, guide, install)
   game.js       item building, weighted picking, distractors, all 6 modes (swipe flashcards), results screen
@@ -100,7 +103,8 @@ NGSL/NAWL (CC BY-SA), TOPIK/JLPT or other published lists.
   render never replaces the page the user navigated to (`route()` bumps it).
 - UI chrome uses SVG icons from `icons.js` (add new ones there, drawn by hand); emoji only for
   flags and word-set icons. Keep the look formal but friendly: indigo primary, neutral surfaces.
-- Games add `body.in-game` (hides the tab bar and Start bar); `route()` removes it.
+- Games add `body.in-game` (hides the tab bar); `route()` removes it. `startGame()` bumps `state.navId` so a
+  pending async page render can't draw over the game.
 - CSS class names are global: check `grep` before adding one (e.g. `.stack` once clipped the
   results buttons because the progress bar used the same name).
 - UI text goes in `i18n.js` (both `th` and `en`); pages read it through `state.t`.
@@ -109,7 +113,8 @@ NGSL/NAWL (CC BY-SA), TOPIK/JLPT or other published lists.
   Changing a format needs a migration and a major version bump.
 - Distractors must differ from the answer in both term and translation (homonyms like 눈 eye/snow).
 - iOS: touch targets ≥ 44px, inputs ≥ 16px font (no zoom), respect `env(safe-area-inset-*)`,
-  `100dvh`; test portrait and landscape. iPad landscape (≥1024px) shows the Practice tab in 2 columns.
+  `100dvh`; test portrait and landscape. iPad landscape (≥1024px) shows the Home tab in 2 columns.
+  The Start button rises `--fab-rise` above the tab bar on phones (a pill inside the bar from 744px); the toast sits above it.
 - Theme: `data-theme="light|dark"` on `<html>` forces a theme; no attribute = follow system.
   New colors need light tokens on `:root` and dark tokens in **both** dark blocks.
 - Comments explain why, not what. Match the existing style.
