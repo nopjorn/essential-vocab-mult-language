@@ -1,0 +1,10 @@
+{
+  "learn": [
+    { "code": "en", "file": "vocab/en.json", "flag": "🇬🇧", "name": { "th": "อังกฤษ", "en": "English" }, "nativeName": "English" },
+    { "code": "ko", "file": "vocab/ko.json", "flag": "🇰🇷", "name": { "th": "เกาหลี", "en": "Korean" }, "nativeName": "한국어" }
+  ],
+  "translate": [
+    { "code": "th", "name": { "th": "ไทย", "en": "Thai" }, "nativeName": "ไทย" },
+    { "code": "en", "name": { "th": "อังกฤษ", "en": "English" }, "nativeName": "English" }
+  ]
+}

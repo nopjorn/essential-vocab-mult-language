@@ -1,0 +1,17 @@
+{
+  "name": "ศัพท์จำเป็น · Essential Vocab",
+  "short_name": "ศัพท์จำเป็น",
+  "description": "เกมจำคำศัพท์จำเป็นหลายภาษา",
+  "lang": "th",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f6f4ff",
+  "theme_color": "#6c4cf5",
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
