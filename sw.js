@@ -1,27 +1,47 @@
 // Offline support: precache the app shell and vocabulary, then serve
-// stale-while-revalidate so updates arrive on the next launch.
-// Bump VERSION whenever files listed in CORE change.
-const VERSION = 'v1';
-const CACHE = `evocab-${VERSION}`;
+// stale-while-revalidate. The cache name comes from version.js, so every
+// deploy (new version or build number) installs a fresh cache and the app
+// shows an "update ready" prompt.
+importScripts('version.js');
+const CACHE = `evocab-${self.APP_VERSION}-${self.APP_BUILD}`;
+// Keep in sync with the files the app loads (scripts/validate.mjs checks this).
 const CORE = [
   './',
   'index.html',
+  'version.js',
   'manifest.webmanifest',
   'assets/css/style.css',
   'assets/js/app.js',
+  'assets/js/app-info.js',
+  'assets/js/core.js',
+  'assets/js/game.js',
+  'assets/js/guide.js',
   'assets/js/i18n.js',
-  'assets/js/store.js',
+  'assets/js/info.js',
+  'assets/js/progress.js',
+  'assets/js/setup.js',
   'assets/js/speech.js',
+  'assets/js/store.js',
+  'assets/js/theme.js',
   'assets/icons/apple-touch-icon.png',
+  'assets/icons/favicon-64.png',
   'assets/icons/icon-192.png',
   'assets/icons/icon-512.png',
   'data/languages.json',
+  'data/changelog.json',
   'data/vocab/en.json',
   'data/vocab/ko.json',
+  'data/vocab/ja.json',
 ];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(CORE)).then(() => self.skipWaiting()));
+  e.waitUntil(
+    caches
+      .open(CACHE)
+      // bypass the HTTP cache so a new version never precaches stale files
+      .then((c) => c.addAll(CORE.map((u) => new Request(u, { cache: 'reload' }))))
+      .then(() => self.skipWaiting()),
+  );
 });
 
 self.addEventListener('activate', (e) => {

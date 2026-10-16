@@ -1,0 +1,279 @@
+// Progress page: overview across all languages, and a detail view per language.
+import { settings, saveSettings, wordKey, getProgress, getStats, dayKey, MASTERED_BOX } from './store.js';
+import { state, h, render, nameOf, loadAllLangs, loadLang, langMeta, answerOf, speakerBtn, readingText } from './core.js';
+import { itemsFor, startGame, MODE_ICONS } from './game.js';
+
+const CHART_DAYS = 14;
+
+// ---------- data ----------
+
+function langSummary(vocab) {
+  let fresh = 0;
+  let learning = 0;
+  let mastered = 0;
+  let c = 0;
+  let w = 0;
+  const sets = vocab.sets.map((set) => {
+    const s = { set, fresh: 0, learning: 0, mastered: 0, total: set.words.length };
+    for (const word of set.words) {
+      const p = getProgress(wordKey(vocab.code, set.id, word.term));
+      c += p.c;
+      w += p.w;
+      if (!p.t) s.fresh++;
+      else if (p.b >= MASTERED_BOX) s.mastered++;
+      else s.learning++;
+    }
+    fresh += s.fresh;
+    learning += s.learning;
+    mastered += s.mastered;
+    return s;
+  });
+  return { vocab, sets, fresh, learning, mastered, total: fresh + learning + mastered, c, w };
+}
+
+function dayTotals(lang) {
+  const out = {};
+  for (const [day, langs] of Object.entries(getStats().days)) {
+    let a = 0;
+    let c = 0;
+    for (const [code, v] of Object.entries(langs)) {
+      if (lang && code !== lang) continue;
+      a += v[0];
+      c += v[1];
+    }
+    if (a) out[day] = [a, c];
+  }
+  return out;
+}
+
+function streak(totals) {
+  const d = new Date();
+  if (!totals[dayKey(d)]) d.setDate(d.getDate() - 1); // today not played yet: count up to yesterday
+  let n = 0;
+  while (totals[dayKey(d)]) {
+    n++;
+    d.setDate(d.getDate() - 1);
+  }
+  return n;
+}
+
+function locale() {
+  return settings.target === 'th' ? 'th-TH' : 'en-US';
+}
+
+function pct(a, b) {
+  return b ? Math.round((a / b) * 100) : 0;
+}
+
+// ---------- pieces ----------
+
+function tile(value, label, sub) {
+  return h('div', { class: 'tile-stat' }, h('b', {}, value), h('span', {}, label), sub ? h('small', {}, sub) : null);
+}
+
+// New / learning / mastered as one stacked bar with a legend carrying the counts.
+function distribution(s, { legend = true } = {}) {
+  const t = state.t;
+  const parts = [
+    ['mastered', s.mastered, t.statusMastered],
+    ['learning', s.learning, t.statusLearning],
+    ['fresh', s.fresh, t.statusNew],
+  ];
+  const bar = h('div', { class: 'stack', role: 'img', 'aria-label': parts.map(([, n, l]) => `${l} ${n}`).join(', ') },
+    parts.filter(([, n]) => n > 0).map(([k, n, l]) =>
+      h('span', { class: `seg seg-${k}`, style: `flex-grow:${n}`, title: `${l}: ${n}` })),
+  );
+  if (!legend) return bar;
+  return h('div', {},
+    bar,
+    h('div', { class: 'legend' }, parts.map(([k, n, l]) =>
+      h('span', { class: 'legend-item' }, h('i', { class: `swatch seg-${k}` }), `${l} `, h('b', {}, n)))),
+  );
+}
+
+// Answers per day for the last CHART_DAYS days. Tapping/hovering a bar shows its numbers.
+function activityChart(totals) {
+  const t = state.t;
+  const days = [];
+  const d = new Date();
+  d.setDate(d.getDate() - (CHART_DAYS - 1));
+  for (let i = 0; i < CHART_DAYS; i++) {
+    const key = dayKey(d);
+    const [a, c] = totals[key] || [0, 0];
+    days.push({ key, date: new Date(d), a, c });
+    d.setDate(d.getDate() + 1);
+  }
+  const max = Math.max(1, ...days.map((x) => x.a));
+  const caption = h('p', { class: 'chart-caption', 'aria-live': 'polite' }, t.tapBar);
+  const fmt = (x) => `${x.date.toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short' })} · ${x.a} ${t.answersUnit}${x.a ? ` · ${t.accuracy} ${pct(x.c, x.a)}%` : ''}`;
+  const show = (x, el) => {
+    caption.textContent = fmt(x);
+    el.parentElement.querySelectorAll('.col.active').forEach((c) => c.classList.remove('active'));
+    el.classList.add('active');
+  };
+  const cols = days.map((x, i) => {
+    const el = h('button', {
+      class: `col${x.key === dayKey() ? ' today' : ''}`,
+      type: 'button',
+      'aria-label': fmt(x),
+      onpointerenter: () => show(x, el),
+      onfocus: () => show(x, el),
+      onclick: () => show(x, el),
+    },
+    h('span', { class: 'col-bar', style: `height:${x.a ? Math.max(4, (x.a / max) * 100) : 0}%` }),
+    h('span', { class: 'col-label' }, i % 2 === (CHART_DAYS - 1) % 2 ? x.date.getDate() : ''));
+    return el;
+  });
+  return h('div', { class: 'chart' },
+    h('div', { class: 'chart-head' }, h('span', {}, t.answersPerDay), h('span', { class: 'muted' }, `${t.max} ${max}`)),
+    h('div', { class: 'cols' }, cols),
+    caption,
+  );
+}
+
+function tabs(active) {
+  const t = state.t;
+  return h('nav', { class: 'tabs', 'aria-label': t.progressTitle },
+    h('a', { href: '#/progress', class: active ? '' : 'active', 'aria-current': active ? null : 'page' }, t.overview),
+    state.index.learn.map((l) =>
+      h('a', { href: `#/progress/${l.code}`, class: active === l.code ? 'active' : '', 'aria-current': active === l.code ? 'page' : null },
+        `${l.flag} ${nameOf(l.name)}`)),
+  );
+}
+
+// ---------- overview ----------
+
+export async function renderProgress(lang) {
+  const t = state.t;
+  if (lang && !langMeta(lang)) lang = null;
+  let vocabs;
+  try {
+    vocabs = lang ? [await loadLang(lang)] : await loadAllLangs();
+  } catch (err) {
+    console.error(err);
+    render(h('div', { class: 'card error' }, t.loadError));
+    return;
+  }
+  if (lang) return renderLang(langSummary(vocabs[0]));
+
+  const sums = vocabs.map(langSummary);
+  const all = sums.reduce((a, s) => ({
+    total: a.total + s.total, mastered: a.mastered + s.mastered, seen: a.seen + s.total - s.fresh, c: a.c + s.c, w: a.w + s.w,
+  }), { total: 0, mastered: 0, seen: 0, c: 0, w: 0 });
+  const totals = dayTotals();
+  const sessions = getStats().sessions;
+
+  render(
+    h('h1', { class: 'page-title' }, `📊 ${t.progressTitle}`),
+    tabs(null),
+    h('section', { class: 'card' },
+      h('div', { class: 'tiles' },
+        tile(`${all.mastered}`, t.wordsMastered, `/ ${all.total} · ${pct(all.mastered, all.total)}%`),
+        tile(`${all.seen}`, t.wordsSeen),
+        tile(all.c + all.w ? `${pct(all.c, all.c + all.w)}%` : '–', t.accuracy),
+        tile(`${streak(totals)}`, t.streak, t.days),
+        tile(`${all.c + all.w}`, t.totalAnswers),
+        tile(`${sessions.length}`, t.sessions),
+      ),
+    ),
+    h('section', { class: 'card' }, h('h2', {}, t.last14), activityChart(totals)),
+    h('section', { class: 'card' },
+      h('h2', {}, t.byLanguage),
+      h('div', { class: 'lang-progress' }, sums.map((s) => {
+        const m = langMeta(s.vocab.code);
+        return h('a', { class: 'lp-row', href: `#/progress/${s.vocab.code}` },
+          h('div', { class: 'lp-head' },
+            h('span', { class: 'lp-name' }, `${m.flag} ${nameOf(m.name)}`),
+            h('span', { class: 'lp-meta' }, `${t.mastered} ${s.mastered}/${s.total} · ${t.accuracy} ${s.c + s.w ? pct(s.c, s.c + s.w) + '%' : '–'}`),
+            h('span', { class: 'chev' }, '›'),
+          ),
+          distribution(s, { legend: false }),
+        );
+      })),
+      h('div', { class: 'legend' }, [['mastered', t.statusMastered], ['learning', t.statusLearning], ['fresh', t.statusNew]].map(([k, l]) =>
+        h('span', { class: 'legend-item' }, h('i', { class: `swatch seg-${k}` }), l))),
+    ),
+  );
+}
+
+// ---------- one language ----------
+
+function renderLang(s) {
+  const t = state.t;
+  const code = s.vocab.code;
+  const totals = dayTotals(code);
+  const sessions = getStats().sessions.filter((x) => x.lang === code).slice(-8).reverse();
+
+  // weakest words: most wrong answers, then lowest box
+  const weak = [];
+  for (const set of s.vocab.sets) {
+    for (const word of set.words) {
+      const p = getProgress(wordKey(code, set.id, word.term));
+      if (p.w > 0 && p.b < MASTERED_BOX) weak.push({ set, word, p });
+    }
+  }
+  weak.sort((a, b) => b.p.w - a.p.w || a.p.b - b.p.b);
+  const top = weak.slice(0, 10);
+
+  const practiceWeak = () => {
+    settings.lang = code;
+    saveSettings();
+    const pool = itemsFor(s.vocab, s.vocab.sets.map((x) => x.id));
+    const keys = new Set(top.map((x) => wordKey(code, x.set.id, x.word.term)));
+    const items = pool.filter((it) => keys.has(it.key));
+    if (settings.mode === 'match' && items.length < 2) settings.mode = 'quiz';
+    startGame(items, pool);
+  };
+
+  render(
+    h('h1', { class: 'page-title' }, `📊 ${t.progressTitle}`),
+    tabs(code),
+    h('section', { class: 'card' },
+      h('div', { class: 'tiles' },
+        tile(`${s.mastered}`, t.wordsMastered, `/ ${s.total} · ${pct(s.mastered, s.total)}%`),
+        tile(`${s.total - s.fresh}`, t.wordsSeen),
+        tile(s.c + s.w ? `${pct(s.c, s.c + s.w)}%` : '–', t.accuracy),
+        tile(`${streak(totals)}`, t.streak, t.days),
+      ),
+      h('div', { class: 'spacer' }),
+      distribution(s),
+    ),
+    h('section', { class: 'card' }, h('h2', {}, t.last14), activityChart(totals)),
+    h('section', { class: 'card' },
+      h('h2', {}, t.bySet),
+      h('ul', { class: 'set-progress' }, s.sets.map((x) =>
+        h('li', {},
+          h('div', { class: 'sp-head' },
+            h('span', {}, `${x.set.icon} ${nameOf(x.set.name)}`),
+            h('span', { class: 'muted' }, `${x.mastered}/${x.total}`),
+          ),
+          distribution(x, { legend: false }),
+        ))),
+    ),
+    h('section', { class: 'card' },
+      h('div', { class: 'card-head' },
+        h('h2', {}, t.weakWords),
+        top.length ? h('button', { class: 'chip primary', type: 'button', onclick: practiceWeak }, `🔁 ${t.practiceWeak}`) : null,
+      ),
+      top.length
+        ? h('ul', { class: 'review-list' }, top.map(({ word, p }) =>
+            h('li', {},
+              h('span', { class: 'rv-term' }, h('span', { lang: code }, word.term), readingText(word) ? h('small', {}, readingText(word)) : null),
+              h('span', { class: 'rv-answer' }, answerOf(word), h('small', { class: 'muted block' }, `${t.wrongTimes} ${p.w}`)),
+              speakerBtn(word.term, { lang: code }),
+            )))
+        : h('p', { class: 'muted' }, t.noWeak),
+    ),
+    h('section', { class: 'card' },
+      h('h2', {}, t.recentSessions),
+      sessions.length
+        ? h('ul', { class: 'session-list' }, sessions.map((x) =>
+            h('li', {},
+              h('span', { class: 'ses-mode' }, `${MODE_ICONS[x.mode] || ''} ${t.modes[x.mode]?.[0] || x.mode}`),
+              h('span', { class: 'muted' }, new Date(x.t).toLocaleString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })),
+              h('b', {}, `${x.c}/${x.n}`),
+            )))
+        : h('p', { class: 'muted' }, t.noData),
+    ),
+  );
+}
