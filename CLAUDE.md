@@ -78,16 +78,24 @@ scripts/
 ```json
 { "code": "ja", "name": {"th": "ญี่ปุ่น", "en": "Japanese"}, "nativeName": "日本語",
   "speech": "ja-JP", "romanization": "Modified Hepburn", "license": "CC0-1.0",
-  "sets": [{ "id": "greetings", "icon": "👋", "name": {"th": "...", "en": "..."},
+  "sets": [{ "id": "greetings", "icon": "👋", "name": {"th": "...", "en": "..."}, "level": 1,
              "words": [{ "term": "今日", "reading": "きょう", "roman": "kyō",
                          "tr": {"th": "วันนี้", "en": "today"}, "note": {"th": "...", "en": "..."} }] }] }
 ```
 
+- `level` on every set: 1 = beginner (≈A1), 2 = everyday (≈A2), 3 = intermediate (≈B1). Home shows one level at a
+  time (segmented control, remembered per language in `settings.level`); Progress groups sets by level
 - `term` required; `reading` (kana, only when it differs from `term`), `roman`, and `note` are optional
 - `tr.th` is required; a translation language is offered only if **every** word has it
 - Within a set: unique `term`s, at least 4 words, avoid duplicate translations (validator warns)
-- Keep set ids consistent across languages where the topic matches (greetings, numbers, people, food,
-  colors, time, body, places, home, shopping, nature, verbs, adjectives, questions)
+- Across a language a term appears once; a homonym in a second set needs a different meaning **and** a `note`
+  (e.g. Korean 이 two / tooth) — the validator enforces this
+- Keep set ids consistent across languages where the topic matches. All three languages share the same
+  topic plan: level 1 = the original sets (greetings, numbers, people, food, colors, time, body, places, home,
+  shopping, nature, verbs, adjectives, questions) + fruits_veg, meals, animals, clothes, city, travel, school,
+  jobs, hobbies, feelings, daily, verbs_2, adjectives_2, position, countries, phone_net, health, weather, rooms,
+  adverbs, amounts; level 2 = people_2 … city_2; level 3 = society … geography (see the files for the full list).
+  Existing set ids and terms are progress keys: never rename them (progress would be lost)
 - Korean verbs/adjectives use dictionary form; Japanese verbs use dictionary form
 - Romanization: Korean = Revised Romanization; Japanese = Hepburn with macrons (typing also accepts ou/oo/no-macron)
 - One word per line in JSON so diffs stay readable

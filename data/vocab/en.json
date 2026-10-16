@@ -9,6 +9,7 @@
       "id": "greetings",
       "icon": "👋",
       "name": {"th": "คำทักทายและวลีพื้นฐาน", "en": "Greetings & basic phrases"},
+      "level": 1,
       "words": [
         {"term": "hello", "tr": {"th": "สวัสดี"}},
         {"term": "goodbye", "tr": {"th": "ลาก่อน"}},
@@ -36,6 +37,7 @@
       "id": "numbers",
       "icon": "🔢",
       "name": {"th": "ตัวเลข", "en": "Numbers"},
+      "level": 1,
       "words": [
         {"term": "zero", "tr": {"th": "ศูนย์"}},
         {"term": "one", "tr": {"th": "หนึ่ง"}},
@@ -63,6 +65,7 @@
       "id": "people",
       "icon": "👨‍👩‍👧",
       "name": {"th": "ครอบครัวและผู้คน", "en": "Family & people"},
+      "level": 1,
       "words": [
         {"term": "family", "tr": {"th": "ครอบครัว"}},
         {"term": "father", "tr": {"th": "พ่อ"}},
@@ -91,6 +94,7 @@
       "id": "food",
       "icon": "🍜",
       "name": {"th": "อาหารและเครื่องดื่ม", "en": "Food & drinks"},
+      "level": 1,
       "words": [
         {"term": "water", "tr": {"th": "น้ำ"}},
         {"term": "rice", "tr": {"th": "ข้าว"}},
@@ -118,6 +122,7 @@
       "id": "colors",
       "icon": "🎨",
       "name": {"th": "สีและรูปทรง", "en": "Colors & shapes"},
+      "level": 1,
       "words": [
         {"term": "color", "tr": {"th": "สี"}},
         {"term": "red", "tr": {"th": "สีแดง"}},
@@ -143,6 +148,7 @@
       "id": "time",
       "icon": "⏰",
       "name": {"th": "เวลา วัน และสัปดาห์", "en": "Time & days"},
+      "level": 1,
       "words": [
         {"term": "time", "tr": {"th": "เวลา"}},
         {"term": "day", "tr": {"th": "วัน"}},
@@ -173,6 +179,7 @@
       "id": "body",
       "icon": "🩺",
       "name": {"th": "ร่างกายและสุขภาพ", "en": "Body & health"},
+      "level": 1,
       "words": [
         {"term": "head", "tr": {"th": "ศีรษะ / หัว"}},
         {"term": "hair", "tr": {"th": "ผม"}},
@@ -201,6 +208,7 @@
       "id": "places",
       "icon": "🗺️",
       "name": {"th": "สถานที่และการเดินทาง", "en": "Places & transport"},
+      "level": 1,
       "words": [
         {"term": "school", "tr": {"th": "โรงเรียน"}},
         {"term": "restaurant", "tr": {"th": "ร้านอาหาร"}},
@@ -232,6 +240,7 @@
       "id": "home",
       "icon": "🏠",
       "name": {"th": "บ้านและของใช้", "en": "Home & things"},
+      "level": 1,
       "words": [
         {"term": "house", "tr": {"th": "บ้าน"}},
         {"term": "room", "tr": {"th": "ห้อง"}},
@@ -259,6 +268,7 @@
       "id": "shopping",
       "icon": "🛍️",
       "name": {"th": "ซื้อของและเงิน", "en": "Shopping & money"},
+      "level": 1,
       "words": [
         {"term": "money", "tr": {"th": "เงิน"}},
         {"term": "price", "tr": {"th": "ราคา"}},
@@ -283,6 +293,7 @@
       "id": "nature",
       "icon": "🌳",
       "name": {"th": "ธรรมชาติ อากาศ และสัตว์", "en": "Nature, weather & animals"},
+      "level": 1,
       "words": [
         {"term": "sun", "tr": {"th": "ดวงอาทิตย์"}},
         {"term": "moon", "tr": {"th": "ดวงจันทร์"}},
@@ -310,6 +321,7 @@
       "id": "verbs",
       "icon": "🏃",
       "name": {"th": "คำกริยาพื้นฐาน", "en": "Basic verbs"},
+      "level": 1,
       "words": [
         {"term": "be", "tr": {"th": "เป็น / คือ"}},
         {"term": "have", "tr": {"th": "มี"}},
@@ -352,6 +364,7 @@
       "id": "adjectives",
       "icon": "✨",
       "name": {"th": "คำคุณศัพท์พื้นฐาน", "en": "Basic adjectives"},
+      "level": 1,
       "words": [
         {"term": "good", "tr": {"th": "ดี"}},
         {"term": "bad", "tr": {"th": "ไม่ดี / แย่"}},
@@ -385,6 +398,7 @@
       "id": "questions",
       "icon": "❓",
       "name": {"th": "คำถาม คำสรรพนาม และคำเชื่อม", "en": "Questions, pronouns & connectors"},
+      "level": 1,
       "words": [
         {"term": "what", "tr": {"th": "อะไร"}},
         {"term": "who", "tr": {"th": "ใคร"}},

@@ -7,6 +7,7 @@ export const GUIDE = {
       items: [
         'แถบเมนูด้านล่างมี: หน้าหลัก · ความคืบหน้า · ปุ่มเริ่มฝึก (วงกลมตรงกลาง) · คู่มือ · ตั้งค่า',
         'ในหน้าหลัก เลือกภาษาที่จะเรียน (อังกฤษ เกาหลี ญี่ปุ่น) จากแถบด้านบน',
+        'คำศัพท์แต่ละภาษามีประมาณ 3,000 คำ แบ่งเป็น 3 ระดับ: ระดับ 1 พื้นฐาน · ระดับ 2 ชีวิตประจำวัน · ระดับ 3 ต่อยอด แตะแถบระดับเหนือรายการชุดคำศัพท์เพื่อสลับ (เลือกชุดจากหลายระดับพร้อมกันได้)',
         'เลือกโหมดเกม แล้วแตะชุดคำศัพท์ที่อยากฝึก (เลือกได้หลายชุด เครื่องหมายถูกด้านขวาคือชุดที่เลือกแล้ว)',
         'แตะปุ่ม "เริ่มฝึก" ตรงกลางแถบเมนูด้านล่าง กดได้จากทุกหน้า แอปจะเริ่มด้วยภาษา โหมด และชุดคำศัพท์ที่เลือกไว้ล่าสุด',
         'เกมเปิดเต็มจอ แตะ ✕ มุมซ้ายบนเพื่อออก เมื่อจบเกมจะกลับไปหน้าที่เปิดอยู่ก่อนเริ่ม',
@@ -38,7 +39,7 @@ export const GUIDE = {
       items: [
         'การ์ดสรุปในหน้าหลักบอกจำนวนคำที่จำได้ วันเรียนต่อเนื่อง และความแม่นยำของภาษาที่เลือก แตะเพื่อดูรายละเอียด',
         'แท็บ "ความคืบหน้า" แสดงภาพรวมทุกภาษา และกราฟจำนวนคำตอบ 14 วันล่าสุด (แตะแท่งกราฟเพื่อดูตัวเลข)',
-        'เลือกภาษาด้านบนเพื่อดูความคืบหน้าแยกชุด คำที่ผิดบ่อย (แตะ "ฝึกคำเหล่านี้" ได้ทันที) และประวัติการเล่น',
+        'เลือกภาษาด้านบนเพื่อดูความคืบหน้าแยกชุด (จัดกลุ่มตามระดับ) คำที่ผิดบ่อย (แตะ "ฝึกคำเหล่านี้" ได้ทันที) และประวัติการเล่น',
       ],
     },
     {
@@ -80,6 +81,7 @@ export const GUIDE = {
       id: 'about', icon: 'info', color: 'gray', title: 'ข้อมูลและลิขสิทธิ์',
       items: [
         'คำศัพท์ทั้งหมดเขียนขึ้นใหม่และเผยแพร่แบบ CC0 (สาธารณสมบัติ) จึงใช้ได้ฟรี รวมถึงเชิงพาณิชย์',
+        'ไม่ได้คัดลอกจากรายการคำศัพท์ที่มีลิขสิทธิ์หรือมีเงื่อนไข เช่น Oxford 3000, NGSL หรือรายการคำของ TOPIK/JLPT',
         'ความคืบหน้าเก็บไว้ในเครื่องนี้เท่านั้น',
         'ดูสิ่งที่เปลี่ยนในแต่ละเวอร์ชันได้ที่ ตั้งค่า › มีอะไรใหม่',
       ],
@@ -91,6 +93,7 @@ export const GUIDE = {
       items: [
         'The tab bar at the bottom has: Home · Progress · the Start button (round, in the middle) · Guide · Settings',
         'On Home, choose the language to learn (English, Korean, Japanese) at the top',
+        'Each language has about 3,000 words in 3 levels: 1 Beginner · 2 Everyday · 3 Intermediate. Switch levels with the bar above the word sets (you can pick sets from several levels at once)',
         'Choose a game mode, then tap the word sets you want (several at once; a check mark means selected)',
         'Tap "Start" in the middle of the tab bar, from any screen. It uses the language, mode and sets you chose last',
         'The game opens full screen; tap ✕ at the top left to leave. When it ends you go back to the screen you started from',
@@ -122,7 +125,7 @@ export const GUIDE = {
       items: [
         'The summary card on Home shows words mastered, day streak and accuracy for the chosen language; tap it for details',
         'The Progress tab shows all languages and answers over the last 14 days (tap a bar for its numbers)',
-        'Pick a language at the top for per-set progress, most-missed words ("Practice these" in one tap) and recent games',
+        'Pick a language at the top for per-set progress (grouped by level), most-missed words ("Practice these" in one tap) and recent games',
       ],
     },
     {
@@ -164,6 +167,7 @@ export const GUIDE = {
       id: 'about', icon: 'info', color: 'gray', title: 'About & license',
       items: [
         'All vocabulary was written for this app and released under CC0 (public domain), free for any use including commercial',
+        'Nothing is copied from copyrighted or restricted word lists such as the Oxford 3000, NGSL or TOPIK/JLPT lists',
         'Progress is stored on this device only',
         'See what changed in each version in Settings › What\'s new',
       ],

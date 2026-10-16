@@ -2,7 +2,7 @@
 // startPractice() for the Start button in the middle of the tab bar.
 // App-wide options (translation, question count, theme…) live in the Settings tab.
 import { settings, saveSettings, wordKey, getProgress, MASTERED_BOX } from './store.js';
-import { state, h, render, nameOf, loadLang, setUiLang, ensureAudio, pageHead, groupTitle, toast } from './core.js';
+import { state, h, fill, render, nameOf, levelOf, loadLang, setUiLang, ensureAudio, pageHead, groupTitle, toast } from './core.js';
 import { speechSupported } from './speech.js';
 import { MODES, itemsFor, pickItems, startGame } from './game.js';
 import { langSummary, dayTotals, streak } from './progress.js';
@@ -87,7 +87,7 @@ export async function renderPractice() {
   const summary = h('a', { class: 'summary', href: `#/progress/${code}` },
     h('div', { class: 'summary-main' },
       h('span', { class: 'summary-label' }, t.mastered),
-      h('div', { class: 'summary-num' }, h('b', {}, s.mastered), h('span', {}, ` / ${s.total} ${t.words}`)),
+      h('div', { class: 'summary-num' }, h('b', {}, s.mastered), h('span', {}, ` / ${s.total.toLocaleString()} ${t.words}`)),
       h('div', { class: 'meter' }, h('span', { class: 'meter-fill', style: `width:${s.total ? (s.mastered / s.total) * 100 : 0}%` })),
     ),
     h('div', { class: 'summary-side' },
@@ -131,15 +131,21 @@ export async function renderPractice() {
     h('span', { class: 'mode-name' }, t.modes[m][0])),
   );
 
-  // ---- word sets ----
-  const setRows = vocab.sets.map((set) => {
+  // ---- word sets, one level at a time ----
+  const levels = [...new Set(vocab.sets.map(levelOf))].sort();
+  let level = settings.level[code];
+  if (!levels.includes(level)) level = levelOf(vocab.sets.find((x) => chosen.has(x.id)) || vocab.sets[0]);
+
+  const rowsByLevel = new Map(levels.map((lv) => [lv, []]));
+  for (const set of vocab.sets) {
     const total = set.words.length;
     const mastered = set.words.filter((w) => getProgress(wordKey(code, set.id, w.term)).b >= MASTERED_BOX).length;
-    return h('label', { class: 'row set-row' },
+    rowsByLevel.get(levelOf(set)).push(h('label', { class: 'row set-row' },
       h('input', {
         type: 'checkbox',
         class: 'sr-only',
         checked: chosen.has(set.id),
+        'data-set': set.id,
         onchange: (e) => {
           if (e.target.checked) chosen.add(set.id);
           else chosen.delete(set.id);
@@ -154,12 +160,47 @@ export async function renderPractice() {
         h('span', { class: 'meter thin' }, h('span', { class: 'meter-fill', style: `width:${total ? (mastered / total) * 100 : 0}%` })),
       ),
       h('span', { class: 'check-circle', 'aria-hidden': 'true' }, icon('check', { size: 16 })),
-    );
-  });
+    ));
+  }
+
+  const setsList = h('div', { class: 'group list sets-list' });
+  const levelInfo = h('p', { class: 'level-info' });
+  const showLevel = () => {
+    const sets = vocab.sets.filter((x) => levelOf(x) === level);
+    const words = sets.reduce((n, x) => n + x.words.length, 0);
+    levelInfo.textContent = t.levelInfo
+      .replace('{name}', t.levelNames[level])
+      .replace('{sets}', sets.length)
+      .replace('{words}', words.toLocaleString());
+    fill(setsList, rowsByLevel.get(level));
+  };
+  const levelSeg = levels.length > 1
+    ? h('div', { class: 'segmented level-seg', role: 'radiogroup', 'aria-label': t.level },
+        levels.map((lv) =>
+          h('label', {},
+            h('input', {
+              type: 'radio',
+              name: 'level',
+              value: lv,
+              checked: lv === level,
+              onchange: () => {
+                level = lv;
+                settings.level[code] = lv;
+                saveSettings();
+                showLevel();
+              },
+            }),
+            h('span', {}, t.levelN.replace('{n}', lv)))))
+    : null;
+
+  // Select all / clear act on the level being shown.
   const setAll = (on) => {
-    chosen.clear();
-    if (on) vocab.sets.forEach((x) => chosen.add(x.id));
-    setRows.forEach((r) => (r.querySelector('input').checked = on));
+    for (const row of rowsByLevel.get(level)) {
+      const input = row.querySelector('input');
+      input.checked = on;
+      if (on) chosen.add(input.dataset.set);
+      else chosen.delete(input.dataset.set);
+    }
     persistSets();
     refreshFoot();
   };
@@ -169,6 +210,7 @@ export async function renderPractice() {
     h('button', { class: 'text-btn', type: 'button', onclick: () => setAll(false) }, t.selectNone));
   setsTitle.classList.add('sets-title');
 
+  showLevel();
   refreshFoot();
 
   render(
@@ -186,7 +228,9 @@ export async function renderPractice() {
     modeDesc,
     h('section', { class: 'sets-col' },
       setsTitle,
-      h('div', { class: 'group list sets-list' }, setRows),
+      levelSeg,
+      levelInfo,
+      setsList,
       setsFoot),
   );
 }

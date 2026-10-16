@@ -423,6 +423,10 @@ input:checked + .switch::after { transform: translateX(20px); }
 .segmented input:checked + span { background: var(--seg-on); color: var(--text); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14); }
 .segmented input:focus-visible + span { outline: 2px solid var(--primary); }
 
+/* word-set levels on Home */
+.level-seg span { min-height: 38px; font-size: 15px; }
+.level-info { margin: 8px 4px 10px; color: var(--muted); font-size: 13px; }
+
 /* ---------- cards ---------- */
 
 .card {

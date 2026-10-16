@@ -10,6 +10,7 @@
       "id": "greetings",
       "icon": "👋",
       "name": {"th": "คำทักทายและวลีพื้นฐาน", "en": "Greetings & basic phrases"},
+      "level": 1,
       "words": [
         {"term": "こんにちは", "roman": "konnichiwa", "tr": {"th": "สวัสดี (ตอนกลางวัน)", "en": "hello (daytime)"}},
         {"term": "おはようございます", "roman": "ohayō gozaimasu", "tr": {"th": "อรุณสวัสดิ์", "en": "good morning"}},
@@ -40,6 +41,7 @@
       "id": "numbers",
       "icon": "🔢",
       "name": {"th": "ตัวเลขและการนับ", "en": "Numbers & counting"},
+      "level": 1,
       "words": [
         {"term": "ゼロ", "roman": "zero", "tr": {"th": "ศูนย์", "en": "zero"}},
         {"term": "一", "reading": "いち", "roman": "ichi", "tr": {"th": "หนึ่ง", "en": "one"}},
@@ -69,6 +71,7 @@
       "id": "people",
       "icon": "👨‍👩‍👧",
       "name": {"th": "ครอบครัวและผู้คน", "en": "Family & people"},
+      "level": 1,
       "words": [
         {"term": "家族", "reading": "かぞく", "roman": "kazoku", "tr": {"th": "ครอบครัว", "en": "family"}},
         {"term": "父", "reading": "ちち", "roman": "chichi", "tr": {"th": "พ่อ (ของตัวเอง)", "en": "(my) father"}},
@@ -101,6 +104,7 @@
       "id": "food",
       "icon": "🍜",
       "name": {"th": "อาหารและเครื่องดื่ม", "en": "Food & drinks"},
+      "level": 1,
       "words": [
         {"term": "水", "reading": "みず", "roman": "mizu", "tr": {"th": "น้ำ", "en": "water"}},
         {"term": "ご飯", "reading": "ごはん", "roman": "gohan", "tr": {"th": "ข้าวสวย / มื้ออาหาร", "en": "cooked rice / meal"}},
@@ -130,6 +134,7 @@
       "id": "colors",
       "icon": "🎨",
       "name": {"th": "สีและรูปทรง", "en": "Colors & shapes"},
+      "level": 1,
       "words": [
         {"term": "色", "reading": "いろ", "roman": "iro", "tr": {"th": "สี", "en": "color"}},
         {"term": "赤", "reading": "あか", "roman": "aka", "tr": {"th": "สีแดง", "en": "red"}},
@@ -155,6 +160,7 @@
       "id": "time",
       "icon": "⏰",
       "name": {"th": "เวลา วัน และสัปดาห์", "en": "Time & days"},
+      "level": 1,
       "words": [
         {"term": "時間", "reading": "じかん", "roman": "jikan", "tr": {"th": "เวลา / ชั่วโมง", "en": "time / hour"}},
         {"term": "日", "reading": "ひ", "roman": "hi", "tr": {"th": "วัน", "en": "day"}},
@@ -185,6 +191,7 @@
       "id": "body",
       "icon": "🩺",
       "name": {"th": "ร่างกายและสุขภาพ", "en": "Body & health"},
+      "level": 1,
       "words": [
         {"term": "頭", "reading": "あたま", "roman": "atama", "tr": {"th": "ศีรษะ / หัว", "en": "head"}},
         {"term": "髪", "reading": "かみ", "roman": "kami", "tr": {"th": "ผม", "en": "hair"}},
@@ -213,6 +220,7 @@
       "id": "places",
       "icon": "🗺️",
       "name": {"th": "สถานที่และการเดินทาง", "en": "Places & transport"},
+      "level": 1,
       "words": [
         {"term": "学校", "reading": "がっこう", "roman": "gakkō", "tr": {"th": "โรงเรียน", "en": "school"}},
         {"term": "レストラン", "roman": "resutoran", "tr": {"th": "ร้านอาหาร", "en": "restaurant"}},
@@ -244,6 +252,7 @@
       "id": "home",
       "icon": "🏠",
       "name": {"th": "บ้านและของใช้", "en": "Home & things"},
+      "level": 1,
       "words": [
         {"term": "家", "reading": "いえ", "roman": "ie", "tr": {"th": "บ้าน", "en": "house / home"}},
         {"term": "部屋", "reading": "へや", "roman": "heya", "tr": {"th": "ห้อง", "en": "room"}},
@@ -271,6 +280,7 @@
       "id": "shopping",
       "icon": "🛍️",
       "name": {"th": "ซื้อของและเงิน", "en": "Shopping & money"},
+      "level": 1,
       "words": [
         {"term": "お金", "reading": "おかね", "roman": "okane", "tr": {"th": "เงิน", "en": "money"}},
         {"term": "値段", "reading": "ねだん", "roman": "nedan", "tr": {"th": "ราคา", "en": "price"}},
@@ -296,6 +306,7 @@
       "id": "nature",
       "icon": "🌳",
       "name": {"th": "ธรรมชาติ อากาศ และสัตว์", "en": "Nature, weather & animals"},
+      "level": 1,
       "words": [
         {"term": "太陽", "reading": "たいよう", "roman": "taiyō", "tr": {"th": "ดวงอาทิตย์", "en": "sun"}},
         {"term": "月", "reading": "つき", "roman": "tsuki", "tr": {"th": "ดวงจันทร์", "en": "moon"}},
@@ -323,6 +334,7 @@
       "id": "verbs",
       "icon": "🏃",
       "name": {"th": "คำกริยาพื้นฐาน", "en": "Basic verbs"},
+      "level": 1,
       "words": [
         {"term": "ある", "roman": "aru", "tr": {"th": "มี / อยู่ (สิ่งของ)", "en": "to exist (things)"}},
         {"term": "いる", "roman": "iru", "tr": {"th": "มี / อยู่ (คน สัตว์)", "en": "to exist (people, animals)"}},
@@ -362,6 +374,7 @@
       "id": "adjectives",
       "icon": "✨",
       "name": {"th": "คำคุณศัพท์พื้นฐาน", "en": "Basic adjectives"},
+      "level": 1,
       "words": [
         {"term": "いい", "roman": "ii", "tr": {"th": "ดี", "en": "good"}},
         {"term": "悪い", "reading": "わるい", "roman": "warui", "tr": {"th": "ไม่ดี / แย่", "en": "bad"}},
@@ -396,6 +409,7 @@
       "id": "questions",
       "icon": "❓",
       "name": {"th": "คำถาม คำสรรพนาม และคำเชื่อม", "en": "Questions, pronouns & connectors"},
+      "level": 1,
       "words": [
         {"term": "何", "reading": "なに", "roman": "nani", "tr": {"th": "อะไร", "en": "what"}},
         {"term": "誰", "reading": "だれ", "roman": "dare", "tr": {"th": "ใคร", "en": "who"}},

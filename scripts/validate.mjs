@@ -19,6 +19,8 @@ for (const lang of index.learn) {
   if (!vocab.license) errors.push(`${where()}: missing "license"`);
 
   const setIds = new Set();
+  const seenTerms = new Map(); // term → { set, th } across the whole language
+  const perLevel = {};
   let total = 0;
   // translations available for this language = those present on every word
   const available = new Set(targetCodes.filter((c) => c !== lang.code));
@@ -28,6 +30,8 @@ for (const lang of index.learn) {
     setIds.add(set.id);
     if (!set.name?.th) errors.push(`${where(set.id)}: missing Thai set name`);
     if (set.words.length < 4) errors.push(`${where(set.id)}: needs at least 4 words`);
+    if (![1, 2, 3].includes(set.level)) errors.push(`${where(set.id)}: "level" must be 1, 2 or 3`);
+    perLevel[set.level] = (perLevel[set.level] || 0) + set.words.length;
 
     const terms = new Set();
     const answers = new Map();
@@ -36,6 +40,11 @@ for (const lang of index.learn) {
       if (!w.term) errors.push(`${where(set.id)}: word without term`);
       if (terms.has(w.term)) errors.push(`${where(set.id, w.term)}: duplicate term in set`);
       terms.add(w.term);
+      // A word may appear in two sets only as a homonym (different meaning, with a note).
+      const prev = seenTerms.get(w.term);
+      if (prev && prev.set !== set.id) {
+        if (prev.th === w.tr?.th || !w.note) errors.push(`${where(set.id, w.term)}: already in ${prev.set}; keep one, or add a note if it is a different word`);
+      } else if (!prev) seenTerms.set(w.term, { set: set.id, th: w.tr?.th });
       if (!w.tr?.th) errors.push(`${where(set.id, w.term)}: missing Thai translation`);
       if (w.reading === w.term) warnings.push(`${where(set.id, w.term)}: reading equals term, omit it`);
       for (const c of [...available]) if (!w.tr?.[c]) available.delete(c);
@@ -46,7 +55,8 @@ for (const lang of index.learn) {
       }
     }
   }
-  console.log(`${lang.code}: ${vocab.sets.length} sets, ${total} words, translations: ${[...available].join(', ') || '(none)'}`);
+  const levels = Object.entries(perLevel).map(([lv, n]) => `L${lv} ${n}`).join(' / ');
+  console.log(`${lang.code}: ${vocab.sets.length} sets, ${total} words (${levels}), translations: ${[...available].join(', ') || '(none)'}`);
 }
 
 // ---------- version & changelog ----------

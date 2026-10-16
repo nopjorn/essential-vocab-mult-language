@@ -10,6 +10,7 @@
       "id": "greetings",
       "icon": "👋",
       "name": {"th": "คำทักทายและวลีพื้นฐาน", "en": "Greetings & basic phrases"},
+      "level": 1,
       "words": [
         {"term": "안녕하세요", "roman": "annyeonghaseyo", "tr": {"th": "สวัสดี", "en": "hello"}},
         {"term": "안녕히 가세요", "roman": "annyeonghi gaseyo", "tr": {"th": "ลาก่อน (พูดกับคนที่กำลังจะไป)", "en": "goodbye (to someone leaving)"}},
@@ -39,6 +40,7 @@
       "id": "numbers_sino",
       "icon": "🔢",
       "name": {"th": "ตัวเลขระบบจีน-เกาหลี", "en": "Sino-Korean numbers"},
+      "level": 1,
       "words": [
         {"term": "영", "roman": "yeong", "tr": {"th": "ศูนย์", "en": "zero"}, "note": {"th": "ระบบจีน-เกาหลี ใช้กับเงิน วันที่ นาที เบอร์โทร", "en": "Sino-Korean: money, dates, minutes, phone numbers"}},
         {"term": "일", "roman": "il", "tr": {"th": "หนึ่ง", "en": "one"}, "note": {"th": "ระบบจีน-เกาหลี", "en": "Sino-Korean"}},
@@ -63,6 +65,7 @@
       "id": "numbers_native",
       "icon": "🖐️",
       "name": {"th": "ตัวเลขเกาหลีแท้และลักษณนาม", "en": "Native Korean numbers & counters"},
+      "level": 1,
       "words": [
         {"term": "하나", "roman": "hana", "tr": {"th": "หนึ่ง", "en": "one"}, "note": {"th": "เลขเกาหลีแท้ ใช้นับสิ่งของ อายุ ชั่วโมง", "en": "native Korean: counting things, age, hours"}},
         {"term": "둘", "roman": "dul", "tr": {"th": "สอง", "en": "two"}, "note": {"th": "เลขเกาหลีแท้", "en": "native Korean"}},
@@ -85,6 +88,7 @@
       "id": "people",
       "icon": "👨‍👩‍👧",
       "name": {"th": "ครอบครัวและผู้คน", "en": "Family & people"},
+      "level": 1,
       "words": [
         {"term": "가족", "roman": "gajok", "tr": {"th": "ครอบครัว", "en": "family"}},
         {"term": "아버지", "roman": "abeoji", "tr": {"th": "พ่อ", "en": "father"}},
@@ -116,6 +120,7 @@
       "id": "food",
       "icon": "🍜",
       "name": {"th": "อาหารและเครื่องดื่ม", "en": "Food & drinks"},
+      "level": 1,
       "words": [
         {"term": "물", "roman": "mul", "tr": {"th": "น้ำ", "en": "water"}},
         {"term": "밥", "roman": "bap", "tr": {"th": "ข้าวสวย / มื้ออาหาร", "en": "cooked rice / meal"}},
@@ -143,6 +148,7 @@
       "id": "colors",
       "icon": "🎨",
       "name": {"th": "สีและรูปทรง", "en": "Colors & shapes"},
+      "level": 1,
       "words": [
         {"term": "색", "roman": "saek", "tr": {"th": "สี", "en": "color"}},
         {"term": "빨간색", "roman": "ppalgansaek", "tr": {"th": "สีแดง", "en": "red"}},
@@ -168,6 +174,7 @@
       "id": "time",
       "icon": "⏰",
       "name": {"th": "เวลา วัน และสัปดาห์", "en": "Time & days"},
+      "level": 1,
       "words": [
         {"term": "시간", "roman": "sigan", "tr": {"th": "เวลา / ชั่วโมง", "en": "time / hour"}},
         {"term": "날", "roman": "nal", "tr": {"th": "วัน", "en": "day"}},
@@ -198,6 +205,7 @@
       "id": "body",
       "icon": "🩺",
       "name": {"th": "ร่างกายและสุขภาพ", "en": "Body & health"},
+      "level": 1,
       "words": [
         {"term": "머리", "roman": "meori", "tr": {"th": "ศีรษะ / ผม", "en": "head / hair"}},
         {"term": "얼굴", "roman": "eolgul", "tr": {"th": "ใบหน้า", "en": "face"}},
@@ -205,9 +213,9 @@
         {"term": "귀", "roman": "gwi", "tr": {"th": "หู", "en": "ear"}},
         {"term": "코", "roman": "ko", "tr": {"th": "จมูก", "en": "nose"}},
         {"term": "입", "roman": "ip", "tr": {"th": "ปาก", "en": "mouth"}},
-        {"term": "이", "roman": "i", "tr": {"th": "ฟัน", "en": "tooth"}},
+        {"term": "이", "roman": "i", "tr": {"th": "ฟัน", "en": "tooth"}, "note": {"th": "เขียนเหมือนเลข 이 (สอง)", "en": "same spelling as 이 (two)"}},
         {"term": "손", "roman": "son", "tr": {"th": "มือ", "en": "hand"}},
-        {"term": "팔", "roman": "pal", "tr": {"th": "แขน", "en": "arm"}},
+        {"term": "팔", "roman": "pal", "tr": {"th": "แขน", "en": "arm"}, "note": {"th": "เขียนเหมือนเลข 팔 (แปด)", "en": "same spelling as 팔 (eight)"}},
         {"term": "다리", "roman": "dari", "tr": {"th": "ขา", "en": "leg"}},
         {"term": "발", "roman": "bal", "tr": {"th": "เท้า", "en": "foot"}},
         {"term": "배", "roman": "bae", "tr": {"th": "ท้อง", "en": "stomach / belly"}},
@@ -225,6 +233,7 @@
       "id": "places",
       "icon": "🗺️",
       "name": {"th": "สถานที่และการเดินทาง", "en": "Places & transport"},
+      "level": 1,
       "words": [
         {"term": "학교", "roman": "hakgyo", "tr": {"th": "โรงเรียน", "en": "school"}},
         {"term": "식당", "roman": "sikdang", "tr": {"th": "ร้านอาหาร", "en": "restaurant"}},
@@ -256,6 +265,7 @@
       "id": "home",
       "icon": "🏠",
       "name": {"th": "บ้านและของใช้", "en": "Home & things"},
+      "level": 1,
       "words": [
         {"term": "집", "roman": "jip", "tr": {"th": "บ้าน", "en": "house / home"}},
         {"term": "방", "roman": "bang", "tr": {"th": "ห้อง", "en": "room"}},
@@ -283,6 +293,7 @@
       "id": "shopping",
       "icon": "🛍️",
       "name": {"th": "ซื้อของและเงิน", "en": "Shopping & money"},
+      "level": 1,
       "words": [
         {"term": "돈", "roman": "don", "tr": {"th": "เงิน", "en": "money"}},
         {"term": "가격", "roman": "gagyeok", "tr": {"th": "ราคา", "en": "price"}},
@@ -308,6 +319,7 @@
       "id": "nature",
       "icon": "🌳",
       "name": {"th": "ธรรมชาติ อากาศ และสัตว์", "en": "Nature, weather & animals"},
+      "level": 1,
       "words": [
         {"term": "해", "roman": "hae", "tr": {"th": "ดวงอาทิตย์", "en": "sun"}},
         {"term": "달", "roman": "dal", "tr": {"th": "ดวงจันทร์", "en": "moon"}},
@@ -325,7 +337,7 @@
         {"term": "날씨", "roman": "nalssi", "tr": {"th": "สภาพอากาศ", "en": "weather"}},
         {"term": "덥다", "roman": "deopda", "tr": {"th": "ร้อน (อากาศ)", "en": "hot (weather)"}},
         {"term": "춥다", "roman": "chupda", "tr": {"th": "หนาว", "en": "cold (weather)"}},
-        {"term": "개", "roman": "gae", "tr": {"th": "สุนัข / หมา", "en": "dog"}},
+        {"term": "개", "roman": "gae", "tr": {"th": "สุนัข / หมา", "en": "dog"}, "note": {"th": "เขียนเหมือนลักษณนาม 개 (อัน / ชิ้น)", "en": "same spelling as the counter 개"}},
         {"term": "고양이", "roman": "goyangi", "tr": {"th": "แมว", "en": "cat"}},
         {"term": "새", "roman": "sae", "tr": {"th": "นก", "en": "bird"}},
         {"term": "동물", "roman": "dongmul", "tr": {"th": "สัตว์", "en": "animal"}}
@@ -335,6 +347,7 @@
       "id": "verbs",
       "icon": "🏃",
       "name": {"th": "คำกริยาพื้นฐาน", "en": "Basic verbs"},
+      "level": 1,
       "words": [
         {"term": "이다", "roman": "ida", "tr": {"th": "เป็น / คือ", "en": "to be"}},
         {"term": "있다", "roman": "itda", "tr": {"th": "มี / อยู่", "en": "to have / to exist"}},
@@ -377,6 +390,7 @@
       "id": "adjectives",
       "icon": "✨",
       "name": {"th": "คำคุณศัพท์พื้นฐาน", "en": "Basic adjectives"},
+      "level": 1,
       "words": [
         {"term": "좋다", "roman": "jota", "tr": {"th": "ดี", "en": "good"}},
         {"term": "나쁘다", "roman": "nappeuda", "tr": {"th": "ไม่ดี / แย่", "en": "bad"}},
@@ -410,6 +424,7 @@
       "id": "questions",
       "icon": "❓",
       "name": {"th": "คำถาม คำสรรพนาม และคำเชื่อม", "en": "Questions, pronouns & connectors"},
+      "level": 1,
       "words": [
         {"term": "무엇", "roman": "mueot", "tr": {"th": "อะไร", "en": "what"}},
         {"term": "누구", "roman": "nugu", "tr": {"th": "ใคร", "en": "who"}},
