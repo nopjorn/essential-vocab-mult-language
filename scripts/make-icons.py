@@ -44,7 +44,7 @@ def text_center(d, cx, cy, txt, font, fill, stroke=0):
     d.text((cx - w / 2 - bb[0], cy - h / 2 - bb[1]), txt, font=font, fill=fill, stroke_width=stroke, stroke_fill=fill)
 
 def icon(full_bleed=True):
-    bg = gradient(S, (132, 98, 255), (74, 38, 214)).convert('RGBA')
+    bg = gradient(S, (88, 116, 242), (52, 46, 186)).convert('RGBA')
     # soft glow top-left
     glow = Image.new('RGBA', (S, S), (0, 0, 0, 0))
     ImageDraw.Draw(glow).ellipse([-S * 0.25, -S * 0.3, S * 0.75, S * 0.6], fill=(255, 255, 255, 40))
@@ -74,7 +74,7 @@ def icon(full_bleed=True):
     latin = ImageFont.truetype(INTER, int(300 * k))
     text_center(d, 685 * k, 335 * k, '가', hangul, (255, 255, 255, 255), stroke=int(9 * k))
     text_center(d, 310 * k, 360 * k, 'あ', kana, (92, 52, 0, 255), stroke=int(8 * k))
-    text_center(d, 515 * k, 605 * k, 'Aa', latin, (98, 64, 240, 255))
+    text_center(d, 515 * k, 605 * k, 'Aa', latin, (52, 81, 209, 255))
     return bg.convert('RGB')
 
 master = icon()
@@ -83,7 +83,7 @@ for size, name in [(180, 'apple-touch-icon.png'), (167, 'apple-touch-icon-167.pn
     master.resize((size, size), Image.LANCZOS).save(f'{OUT}/{name}', optimize=True)
 
 # maskable: artwork scaled to 80% on the same background so nothing is clipped by circle masks
-bgonly = gradient(1024, (132, 98, 255), (74, 38, 214))
+bgonly = gradient(1024, (88, 116, 242), (52, 46, 186))
 art = master.resize((820, 820), Image.LANCZOS)
 bgonly.paste(art, (102, 102))
 bgonly.resize((512, 512), Image.LANCZOS).save(f'{OUT}/icon-maskable-512.png', optimize=True)
@@ -94,7 +94,7 @@ SPLASH = {
     'ipad-air-11': (1640, 2360),      # iPad Air 11" (M2-M5), 820x1180 @2x
     'ipad-air-13': (2048, 2732),      # iPad Air 13" (M2-M5), 1024x1366 @2x
 }
-BG = {'light': (246, 244, 255), 'dark': (20, 18, 31)}
+BG = {"light": (242, 243, 247), "dark": (14, 15, 19)}
 icon_r = master.resize((512, 512), Image.LANCZOS)
 mask = Image.new('L', (512, 512), 0)
 ImageDraw.Draw(mask).rounded_rectangle([0, 0, 511, 511], radius=115, fill=255)

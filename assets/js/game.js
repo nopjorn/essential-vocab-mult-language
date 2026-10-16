@@ -1,10 +1,11 @@
-// Game modes and the results screen.
+// Game modes and the results screen. Games run full screen (the tab bar is hidden).
 import { settings, wordKey, getProgress, record, logSession, MAX_BOX } from './store.js';
-import { state, h, fill, render, shuffle, say, speakerBtn, termBlock, readingText, answerOf } from './core.js';
+import { state, h, fill, render, shuffle, say, speakerBtn, termBlock, readingText, answerOf, groupTitle } from './core.js';
+import { icon } from './icons.js';
 
 export const MODES = ['flash', 'quiz', 'reverse', 'listen', 'type', 'match'];
-export const MODE_ICONS = { flash: '🃏', quiz: '🔤', reverse: '🔁', listen: '🎧', type: '⌨️', match: '🧩' };
 const MATCH_PAIRS = 6;
+const SWIPE_RATIO = 0.28; // fraction of the card width that counts as a decision
 
 let onExit = () => {};
 export function setExitHandler(fn) {
@@ -70,6 +71,7 @@ function distractors(item, pool, n = 3) {
 // ---------- shell ----------
 
 export function startGame(items, pool) {
+  document.body.classList.add('in-game');
   const session = {
     mode: settings.mode,
     lang: settings.lang,
@@ -84,12 +86,17 @@ export function startGame(items, pool) {
   else playNext(session);
 }
 
+function exitGame() {
+  onKeys(null);
+  onExit();
+}
+
 function topBar(session, label) {
   const t = state.t;
   const total = session.items.length;
   const pct = Math.round((session.i / total) * 100);
   return h('div', { class: 'game-top' },
-    h('button', { class: 'btn ghost', type: 'button', onclick: () => { onKeys(null); onExit(); } }, `✕ ${t.quit}`),
+    h('button', { class: 'icon-btn', type: 'button', 'aria-label': t.quit, onclick: exitGame }, icon('close')),
     h('div', { class: 'progress', role: 'progressbar', 'aria-valuemin': '0', 'aria-valuemax': String(total), 'aria-valuenow': String(session.i) },
       h('div', { class: 'progress-fill', style: `width:${pct}%` })),
     h('span', { class: 'counter' }, label ?? `${Math.min(session.i + 1, total)}/${total}`),
@@ -121,7 +128,7 @@ export function onKeys(fn) {
 }
 
 function noteEl(item) {
-  return item.note ? h('p', { class: 'note' }, `💡 ${item.note}`) : null;
+  return item.note ? h('p', { class: 'note' }, icon('info', { size: 16 }), h('span', {}, item.note)) : null;
 }
 
 function readingSmall(item) {
@@ -129,44 +136,108 @@ function readingSmall(item) {
   return r ? h('small', {}, r) : null;
 }
 
-// ---------- flashcards ----------
+function verdict(ok) {
+  const t = state.t;
+  return h('strong', { class: `verdict ${ok ? 'ok' : 'ng'}` }, icon(ok ? 'check' : 'close', { size: 20 }), ok ? t.correct : t.wrong);
+}
+
+// ---------- flashcards: tap to flip, swipe right = known, left = not yet ----------
 
 function flashView(session, item, advance) {
   const t = state.t;
   let flipped = false;
+  let busy = false;
+
+  const front = h('div', { class: 'face front' }, termBlock(item), h('span', { class: 'flip-hint' }, t.tapToFlip));
   const back = h('div', { class: 'face back' },
     h('div', { class: 'answer-big' }, item.answer),
     termBlock(item, { size: 'md', reading: true }),
     noteEl(item),
   );
-  const front = h('div', { class: 'face front' },
-    termBlock(item),
-    h('span', { class: 'flip-hint' }, t.tapToFlip),
-  );
-  const actions = h('div', { class: 'actions two hidden' },
-    h('button', { class: 'btn bad', type: 'button', onclick: () => done(false) }, `😅 ${t.forgot}`),
-    h('button', { class: 'btn good', type: 'button', onclick: () => done(true) }, `😊 ${t.remembered}`),
-  );
-  const card = h('div', { class: 'flashcard', role: 'button', tabindex: '0', onclick: () => flip() },
+  const stampKnow = h('div', { class: 'stamp stamp-know', 'aria-hidden': 'true' }, icon('check', { size: 20 }), t.swipeKnow);
+  const stampAgain = h('div', { class: 'stamp stamp-again', 'aria-hidden': 'true' }, icon('close', { size: 20 }), t.swipeAgain);
+  const card = h('div', { class: 'flashcard', role: 'button', tabindex: '0', 'aria-label': t.flip },
     h('div', { class: 'flash-inner' }, front, back),
+    stampKnow,
+    stampAgain,
     h('div', { class: 'flash-speaker' }, speakerBtn(item.term)),
   );
+  const hasNext = session.i + 1 < session.items.length;
+  const deck = h('div', { class: 'deck' }, hasNext ? h('div', { class: 'deck-next', 'aria-hidden': 'true' }) : null, card);
+
+  function setPos(x, y) {
+    card.style.transform = x || y ? `translate(${x}px, ${y * 0.25}px) rotate(${x / 20}deg)` : '';
+    const p = Math.min(1, Math.abs(x) / (deck.clientWidth * SWIPE_RATIO));
+    stampKnow.style.opacity = x > 0 ? p : 0;
+    stampAgain.style.opacity = x < 0 ? p : 0;
+  }
 
   function flip() {
+    if (busy) return;
     flipped = !flipped;
     card.classList.toggle('flipped', flipped);
-    actions.classList.remove('hidden');
-  }
-  function done(ok) {
-    grade(session, item, ok);
-    advance();
   }
 
-  render(h('div', { class: 'game' }, topBar(session), card, actions));
+  function decide(ok) {
+    if (busy) return;
+    busy = true;
+    const w = deck.clientWidth;
+    card.classList.remove('dragging');
+    card.classList.add('fly');
+    stampKnow.style.opacity = ok ? 1 : 0;
+    stampAgain.style.opacity = ok ? 0 : 1;
+    card.style.transform = `translate(${ok ? w * 1.4 : -w * 1.4}px, 20px) rotate(${ok ? 22 : -22}deg)`;
+    grade(session, item, ok);
+    setTimeout(advance, 280);
+  }
+
+  // Pointer drag (touch, pen and mouse). Small movement = tap = flip.
+  let drag = null;
+  card.addEventListener('pointerdown', (e) => {
+    if (busy || e.target.closest('.speaker')) return;
+    drag = { id: e.pointerId, x: e.clientX, y: e.clientY, dx: 0, dy: 0, t: performance.now() };
+    card.setPointerCapture(e.pointerId);
+    card.classList.add('dragging');
+  });
+  card.addEventListener('pointermove', (e) => {
+    if (!drag || e.pointerId !== drag.id) return;
+    drag.dx = e.clientX - drag.x;
+    drag.dy = e.clientY - drag.y;
+    setPos(drag.dx, drag.dy);
+  });
+  const release = (e) => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const { dx, dy, t: t0 } = drag;
+    drag = null;
+    card.classList.remove('dragging');
+    if (e.type === 'pointercancel') return setPos(0, 0);
+    const speed = Math.abs(dx) / Math.max(1, performance.now() - t0);
+    if (Math.abs(dx) < 8 && Math.abs(dy) < 8) {
+      setPos(0, 0);
+      flip();
+    } else if (Math.abs(dx) > deck.clientWidth * SWIPE_RATIO || (speed > 0.6 && Math.abs(dx) > 40)) {
+      decide(dx > 0);
+    } else {
+      setPos(0, 0);
+    }
+  };
+  card.addEventListener('pointerup', release);
+  card.addEventListener('pointercancel', release);
+
+  const actions = h('div', { class: 'swipe-actions' },
+    h('button', { class: 'round-btn bad', type: 'button', 'aria-label': t.forgot, onclick: () => decide(false) },
+      icon('close', { size: 28 }), h('span', {}, t.forgot)),
+    h('button', { class: 'round-btn neutral small', type: 'button', 'aria-label': t.flip, onclick: flip },
+      icon('flip', { size: 22 }), h('span', {}, t.flip)),
+    h('button', { class: 'round-btn good', type: 'button', 'aria-label': t.remembered, onclick: () => decide(true) },
+      icon('check', { size: 28 }), h('span', {}, t.remembered)),
+  );
+
+  render(h('div', { class: 'game game-flash' }, topBar(session), deck, h('p', { class: 'swipe-hint' }, t.swipeHint), actions));
   onKeys((e) => {
     if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flip(); }
-    else if (flipped && (e.key === '1' || e.key === 'ArrowLeft')) done(false);
-    else if (flipped && (e.key === '2' || e.key === 'ArrowRight')) done(true);
+    else if (e.key === '1' || e.key === 'ArrowLeft') decide(false);
+    else if (e.key === '2' || e.key === 'ArrowRight') decide(true);
   });
   if (settings.autoSpeak) say(item.term);
 }
@@ -185,7 +256,7 @@ function choiceView(session, item, advance) {
   else prompt = h('div', { class: 'prompt listen' }, speakerBtn(item.term, { big: true }), h('span', { class: 'flip-hint' }, t.tapToListen));
 
   const feedback = h('div', { class: 'feedback', 'aria-live': 'polite' });
-  const nextBtn = h('button', { class: 'btn primary hidden', type: 'button', onclick: () => advance() }, `${t.next} →`);
+  const nextBtn = h('button', { class: 'btn primary wide hidden', type: 'button', onclick: () => advance() }, t.next, icon('chevronRight', { size: 20 }));
 
   const buttons = options.map((opt, idx) => {
     const label = mode === 'reverse'
@@ -206,8 +277,8 @@ function choiceView(session, item, advance) {
       else if (i === idx) b.classList.add('wrong');
     });
     fill(feedback,
-      h('strong', { class: ok ? 'ok' : 'ng' }, ok ? t.correct : t.wrong),
-      mode !== 'quiz' || !ok ? h('div', { class: 'reveal' }, termBlock(item, { size: 'md', reading: true }), ' = ', item.answer) : null,
+      verdict(ok),
+      mode !== 'quiz' || !ok ? h('div', { class: 'reveal' }, termBlock(item, { size: 'md', reading: true }), h('span', { class: 'eq' }, '='), h('span', {}, item.answer)) : null,
       noteEl(item),
     );
     if (mode !== 'quiz' || settings.autoSpeak) say(item.term);
@@ -270,7 +341,7 @@ function typeView(session, item, advance) {
   });
   const feedback = h('div', { class: 'feedback', 'aria-live': 'polite' });
   const checkBtn = h('button', { class: 'btn primary', type: 'submit' }, t.check);
-  const skipBtn = h('button', { class: 'btn ghost', type: 'button', onclick: () => check(true) }, t.dontKnow);
+  const skipBtn = h('button', { class: 'btn', type: 'button', onclick: () => check(true) }, t.dontKnow);
 
   function check(skip = false) {
     if (answered) return advance();
@@ -282,12 +353,12 @@ function typeView(session, item, advance) {
     input.readOnly = true;
     input.classList.add(ok ? 'right' : 'wrong');
     fill(feedback,
-      h('strong', { class: ok ? 'ok' : 'ng' }, ok ? t.correct : t.wrong),
+      verdict(ok),
       h('div', { class: 'reveal' }, termBlock(item, { size: 'md', reading: true }), speakerBtn(item.term)),
       noteEl(item),
     );
     say(item.term);
-    checkBtn.textContent = `${t.next} →`;
+    checkBtn.textContent = t.next;
     skipBtn.classList.add('hidden');
     checkBtn.focus({ preventScroll: true });
   }
@@ -408,41 +479,68 @@ function playMatch(session) {
 
 // ---------- results ----------
 
+function scoreRing(pct) {
+  const NS = 'http://www.w3.org/2000/svg';
+  const R = 52;
+  const C = 2 * Math.PI * R;
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('viewBox', '0 0 120 120');
+  svg.setAttribute('class', 'ring');
+  svg.setAttribute('aria-hidden', 'true');
+  const track = document.createElementNS(NS, 'circle');
+  const bar = document.createElementNS(NS, 'circle');
+  for (const c of [track, bar]) {
+    c.setAttribute('cx', '60');
+    c.setAttribute('cy', '60');
+    c.setAttribute('r', String(R));
+  }
+  track.setAttribute('class', 'ring-track');
+  bar.setAttribute('class', 'ring-bar');
+  bar.setAttribute('stroke-dasharray', `${(C * pct) / 100} ${C}`);
+  svg.append(track, bar);
+  return svg;
+}
+
 function showResults(session) {
   const t = state.t;
   onKeys(null);
   const total = session.items.length;
   const pct = total ? Math.round((session.correct / total) * 100) : 0;
   const secs = Math.round((Date.now() - session.startedAt) / 1000);
-  const emoji = pct === 100 ? '🏆' : pct >= 80 ? '🌟' : pct >= 50 ? '💪' : '📚';
   logSession({ lang: session.lang, mode: session.mode, n: total, c: session.correct, s: secs, t: Date.now() });
+  const message = pct >= 90 ? t.resultGreat : pct >= 60 ? t.resultGood : t.resultKeep;
 
-  const wrongList = session.wrong.length
-    ? h('ul', { class: 'review-list' }, session.wrong.map((it) =>
-        h('li', {},
+  const reviewList = session.wrong.length
+    ? h('ul', { class: 'group list' }, session.wrong.map((it) =>
+        h('li', { class: 'row' },
           h('span', { class: 'rv-term' }, h('span', { lang: it.lang }, it.term), readingSmall(it)),
           h('span', { class: 'rv-answer' }, it.answer),
           speakerBtn(it.term, { lang: it.lang }),
         )))
-    : h('p', { class: 'center' }, t.perfect);
+    : h('p', { class: 'empty' }, icon('check', { size: 20 }), t.perfect);
 
   render(h('div', { class: 'results' },
-    h('section', { class: 'card center' },
-      h('div', { class: 'big-emoji' }, emoji),
-      h('h2', {}, t.resultTitle),
+    h('div', { class: 'game-top' },
+      h('button', { class: 'icon-btn', type: 'button', 'aria-label': t.done, onclick: exitGame }, icon('close')),
+      h('span', { class: 'top-title' }, t.resultTitle),
+      h('span', { class: 'icon-btn-spacer' }),
+    ),
+    h('section', { class: 'result-hero' },
+      h('div', { class: 'ring-wrap' }, scoreRing(pct), h('div', { class: 'ring-label' }, h('b', {}, `${pct}%`), h('span', {}, t.accuracy))),
+      h('p', { class: 'result-msg' }, message),
       h('div', { class: 'stats' },
         h('div', { class: 'stat' }, h('b', {}, `${session.correct}/${total}`), h('span', {}, t.score)),
-        h('div', { class: 'stat' }, h('b', {}, `${pct}%`), h('span', {}, t.accuracy)),
         h('div', { class: 'stat' }, h('b', {}, `${secs} ${t.sec}`), h('span', {}, t.time)),
       ),
     ),
-    h('section', { class: 'card' }, h('h2', {}, t.reviewWrong), wrongList),
+    groupTitle(t.reviewWrong),
+    reviewList,
     h('div', { class: 'actions stack' },
       session.wrong.length
-        ? h('button', { class: 'btn primary big', type: 'button', onclick: () => startGame(shuffle(session.wrong), session.pool) }, `🔁 ${t.practiceWrong}`)
+        ? h('button', { class: 'btn primary big', type: 'button', onclick: () => startGame(shuffle(session.wrong), session.pool) }, icon('repeat', { size: 20 }), t.practiceWrong)
         : null,
-      h('button', { class: 'btn big', type: 'button', onclick: () => startGame(pickItems(session.pool, settings.count), session.pool) }, `▶ ${t.playAgain}`),
-      h('button', { class: 'btn ghost', type: 'button', onclick: () => onExit() }, t.backToSetup),
+      h('button', { class: `btn big${session.wrong.length ? '' : ' primary'}`, type: 'button', onclick: () => startGame(pickItems(session.pool, settings.count), session.pool) }, icon('play', { size: 18, fill: true }), t.playAgain),
+      h('button', { class: 'btn ghost', type: 'button', onclick: exitGame }, t.done),
     ),
   ));
 }

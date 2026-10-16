@@ -2,6 +2,30 @@
 
 <!-- Generated from data/changelog.json by `node scripts/bump-version.mjs --sync`. Do not edit by hand. -->
 
+## [1.2.0] - 2026-10-16
+
+- ออกแบบหน้าตาใหม่ให้เหมือนแอปบนมือถือ: แถบเมนูไอคอนด้านล่าง (ฝึก · ความคืบหน้า · คู่มือ · ตั้งค่า) และหัวข้อหน้าขนาดใหญ่แบบ iOS
+- เพิ่มหน้า "ตั้งค่า" แยกต่างหาก: ภาษาคำแปลและภาษาของแอป จำนวนข้อต่อรอบ แสดงคำอ่าน ออกเสียงอัตโนมัติ ธีม ล้างความคืบหน้าแยกภาษา และข้อมูลเวอร์ชัน
+- แฟลชการ์ดแบบปัด: ปัดขวาถ้าจำได้ ปัดซ้ายถ้ายังจำไม่ได้ แตะการ์ดเพื่อพลิก (มีปุ่ม ✓ / ✕ ให้กดแทนได้)
+- หน้าฝึกใหม่: เลือกภาษาแบบแถบสลับ การ์ดสรุปความคืบหน้า โหมดเกมแบบไอคอน และปุ่ม "เริ่มฝึก" ด้านล่างที่บอกจำนวนชุดและจำนวนข้อ
+- เกมเปิดแบบเต็มจอ และหน้าสรุปผลแสดงวงแหวนเปอร์เซ็นต์ความแม่นยำ
+- ใช้ไอคอนเส้นแบบ SVG ที่วาดขึ้นเองแทน emoji และปรับโทนสีเป็นน้ำเงินครามให้ดูเป็นทางการขึ้น รวมถึงไอคอนแอปและหน้าเปิดแอป
+- บน iPad แนวนอน หน้าฝึกแบ่งเป็น 2 คอลัมน์ (รายการชุดคำศัพท์อยู่ด้านขวา)
+- แก้บั๊ก: ปุ่มในหน้าสรุปผลถูกตัดจนกดไม่ได้
+
+<details><summary>English</summary>
+
+- Redesigned to feel like a native mobile app: icon tab bar at the bottom (Practice · Progress · Guide · Settings) and iOS-style large titles
+- New Settings tab: translation & app language, questions per round, show reading, auto pronounce, theme, per-language progress reset and version info
+- Swipeable flashcards: swipe right if you know it, left if not; tap to flip (✓ / ✕ buttons also available)
+- New Practice screen: language switcher, progress summary card, icon game modes and a Start button showing sets and question count
+- Games open full screen, and results show an accuracy ring
+- Custom SVG line icons instead of emoji and a more formal indigo palette, including the app icon and launch screens
+- On iPad landscape the Practice tab uses two columns (word sets on the right)
+- Fix: buttons on the results screen were clipped and could not be tapped
+
+</details>
+
 ## [1.1.0] - 2026-10-16
 
 - เพิ่มภาษาญี่ปุ่น 14 ชุด 318 คำ พร้อมคำอ่านคานะและโรมาจิ (แปลเป็นไทยและอังกฤษ)
