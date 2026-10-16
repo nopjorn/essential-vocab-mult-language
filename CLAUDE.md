@@ -28,6 +28,8 @@ The CI (`.github/workflows/ci.yml`) and `scripts/validate.mjs` enforce most of t
 4. **This file**: update the sections below when structure, conventions or counts change.
 5. **Cache list**: a new file the app loads → add it to `CORE` in `sw.js`.
 6. Run `node scripts/validate.mjs` (must print `OK`) and test in a browser (see Testing).
+7. **Commit messages and pull requests are written in Thai** (title and body). Code identifiers,
+   file names and commands stay as they are, e.g. `v1.2.0: เพิ่มภาษาจีน และแก้บั๊กโหมดจับคู่`.
 
 ## Layout
 
