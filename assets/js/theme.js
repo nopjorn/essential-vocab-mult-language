@@ -2,10 +2,11 @@
 // sets data-theme before first paint; this module keeps it in sync.
 import { settings, saveSettings } from './store.js';
 import { state, h } from './core.js';
+import { icon } from './icons.js';
 
 const THEMES = ['system', 'light', 'dark'];
-const ICONS = { system: '🖥️', light: '☀️', dark: '🌙' };
-const BAR = { light: '#f6f4ff', dark: '#14121f' };
+const ICONS = { system: 'system', light: 'sun', dark: 'moon' };
+const BAR = { light: '#f2f3f7', dark: '#0e0f13' };
 
 export function applyTheme() {
   const root = document.documentElement;
@@ -37,7 +38,7 @@ export function themeControl() {
             applyTheme();
           },
         }),
-        h('span', {}, `${ICONS[th]} ${labels[th]}`),
+        h('span', {}, icon(ICONS[th], { size: 16 }), labels[th]),
       ),
     ),
   );

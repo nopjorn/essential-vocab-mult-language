@@ -1,13 +1,14 @@
 // Progress page: overview across all languages, and a detail view per language.
 import { settings, saveSettings, wordKey, getProgress, getStats, dayKey, MASTERED_BOX } from './store.js';
-import { state, h, render, nameOf, loadAllLangs, loadLang, langMeta, answerOf, speakerBtn, readingText } from './core.js';
-import { itemsFor, startGame, MODE_ICONS } from './game.js';
+import { state, h, render, nameOf, loadAllLangs, loadLang, langMeta, answerOf, speakerBtn, readingText, pageHead, groupTitle } from './core.js';
+import { itemsFor, startGame } from './game.js';
+import { icon, MODE_ICON } from './icons.js';
 
 const CHART_DAYS = 14;
 
 // ---------- data ----------
 
-function langSummary(vocab) {
+export function langSummary(vocab) {
   let fresh = 0;
   let learning = 0;
   let mastered = 0;
@@ -31,7 +32,7 @@ function langSummary(vocab) {
   return { vocab, sets, fresh, learning, mastered, total: fresh + learning + mastered, c, w };
 }
 
-function dayTotals(lang) {
+export function dayTotals(lang) {
   const out = {};
   for (const [day, langs] of Object.entries(getStats().days)) {
     let a = 0;
@@ -46,7 +47,7 @@ function dayTotals(lang) {
   return out;
 }
 
-function streak(totals) {
+export function streak(totals) {
   const d = new Date();
   if (!totals[dayKey(d)]) d.setDate(d.getDate() - 1); // today not played yet: count up to yesterday
   let n = 0;
@@ -67,8 +68,10 @@ function pct(a, b) {
 
 // ---------- pieces ----------
 
-function tile(value, label, sub) {
-  return h('div', { class: 'tile-stat' }, h('b', {}, value), h('span', {}, label), sub ? h('small', {}, sub) : null);
+function tile(ic, value, label, sub) {
+  return h('div', { class: 'tile-stat' },
+    h('span', { class: 'tile-ic' }, icon(ic, { size: 18 })),
+    h('b', {}, value), h('span', {}, label), sub ? h('small', {}, sub) : null);
 }
 
 // New / learning / mastered as one stacked bar with a legend carrying the counts.
@@ -79,7 +82,7 @@ function distribution(s, { legend = true } = {}) {
     ['learning', s.learning, t.statusLearning],
     ['fresh', s.fresh, t.statusNew],
   ];
-  const bar = h('div', { class: 'stack', role: 'img', 'aria-label': parts.map(([, n, l]) => `${l} ${n}`).join(', ') },
+  const bar = h('div', { class: 'dist', role: 'img', 'aria-label': parts.map(([, n, l]) => `${l} ${n}`).join(', ') },
     parts.filter(([, n]) => n > 0).map(([k, n, l]) =>
       h('span', { class: `seg seg-${k}`, style: `flex-grow:${n}`, title: `${l}: ${n}` })),
   );
@@ -146,12 +149,14 @@ function tabs(active) {
 export async function renderProgress(lang) {
   const t = state.t;
   if (lang && !langMeta(lang)) lang = null;
+  const nav = state.navId;
   let vocabs;
   try {
     vocabs = lang ? [await loadLang(lang)] : await loadAllLangs();
+    if (nav !== state.navId) return;
   } catch (err) {
     console.error(err);
-    render(h('div', { class: 'card error' }, t.loadError));
+    render(pageHead(t.progressTitle), h('div', { class: 'card error' }, t.loadError));
     return;
   }
   if (lang) return renderLang(langSummary(vocabs[0]));
@@ -164,35 +169,33 @@ export async function renderProgress(lang) {
   const sessions = getStats().sessions;
 
   render(
-    h('h1', { class: 'page-title' }, `📊 ${t.progressTitle}`),
+    pageHead(t.progressTitle),
     tabs(null),
-    h('section', { class: 'card' },
-      h('div', { class: 'tiles' },
-        tile(`${all.mastered}`, t.wordsMastered, `/ ${all.total} · ${pct(all.mastered, all.total)}%`),
-        tile(`${all.seen}`, t.wordsSeen),
-        tile(all.c + all.w ? `${pct(all.c, all.c + all.w)}%` : '–', t.accuracy),
-        tile(`${streak(totals)}`, t.streak, t.days),
-        tile(`${all.c + all.w}`, t.totalAnswers),
-        tile(`${sessions.length}`, t.sessions),
-      ),
+    h('div', { class: 'tiles' },
+      tile('check', `${all.mastered}`, t.wordsMastered, `/ ${all.total} · ${pct(all.mastered, all.total)}%`),
+      tile('eye', `${all.seen}`, t.wordsSeen),
+      tile('target', all.c + all.w ? `${pct(all.c, all.c + all.w)}%` : '–', t.accuracy),
+      tile('flame', `${streak(totals)}`, t.streak, t.days),
+      tile('quiz', `${all.c + all.w}`, t.totalAnswers),
+      tile('repeat', `${sessions.length}`, t.sessions),
     ),
-    h('section', { class: 'card' }, h('h2', {}, t.last14), activityChart(totals)),
-    h('section', { class: 'card' },
-      h('h2', {}, t.byLanguage),
-      h('div', { class: 'lang-progress' }, sums.map((s) => {
-        const m = langMeta(s.vocab.code);
-        return h('a', { class: 'lp-row', href: `#/progress/${s.vocab.code}` },
-          h('div', { class: 'lp-head' },
-            h('span', { class: 'lp-name' }, `${m.flag} ${nameOf(m.name)}`),
-            h('span', { class: 'lp-meta' }, `${t.mastered} ${s.mastered}/${s.total} · ${t.accuracy} ${s.c + s.w ? pct(s.c, s.c + s.w) + '%' : '–'}`),
-            h('span', { class: 'chev' }, '›'),
-          ),
-          distribution(s, { legend: false }),
-        );
-      })),
-      h('div', { class: 'legend' }, [['mastered', t.statusMastered], ['learning', t.statusLearning], ['fresh', t.statusNew]].map(([k, l]) =>
-        h('span', { class: 'legend-item' }, h('i', { class: `swatch seg-${k}` }), l))),
-    ),
+    groupTitle(t.last14),
+    h('section', { class: 'card' }, activityChart(totals)),
+    groupTitle(t.byLanguage),
+    h('div', { class: 'group list' }, sums.map((s) => {
+      const m = langMeta(s.vocab.code);
+      return h('a', { class: 'row lp-row', href: `#/progress/${s.vocab.code}` },
+        h('span', { class: 'flag big', 'aria-hidden': 'true' }, m.flag),
+        h('span', { class: 'row-text' },
+          h('span', { class: 'lp-head' },
+            h('span', { class: 'row-label' }, nameOf(m.name)),
+            h('span', { class: 'row-sub' }, `${t.mastered} ${s.mastered}/${s.total} · ${t.accuracy} ${s.c + s.w ? pct(s.c, s.c + s.w) + '%' : '–'}`)),
+          distribution(s, { legend: false })),
+        icon('chevronRight', { size: 18, cls: 'chev' }),
+      );
+    })),
+    h('div', { class: 'legend pad' }, [['mastered', t.statusMastered], ['learning', t.statusLearning], ['fresh', t.statusNew]].map(([k, l]) =>
+      h('span', { class: 'legend-item' }, h('i', { class: `swatch seg-${k}` }), l))),
   );
 }
 
@@ -226,54 +229,45 @@ function renderLang(s) {
   };
 
   render(
-    h('h1', { class: 'page-title' }, `📊 ${t.progressTitle}`),
+    pageHead(t.progressTitle),
     tabs(code),
-    h('section', { class: 'card' },
-      h('div', { class: 'tiles' },
-        tile(`${s.mastered}`, t.wordsMastered, `/ ${s.total} · ${pct(s.mastered, s.total)}%`),
-        tile(`${s.total - s.fresh}`, t.wordsSeen),
-        tile(s.c + s.w ? `${pct(s.c, s.c + s.w)}%` : '–', t.accuracy),
-        tile(`${streak(totals)}`, t.streak, t.days),
-      ),
-      h('div', { class: 'spacer' }),
-      distribution(s),
+    h('div', { class: 'tiles four' },
+      tile('check', `${s.mastered}`, t.wordsMastered, `/ ${s.total} · ${pct(s.mastered, s.total)}%`),
+      tile('eye', `${s.total - s.fresh}`, t.wordsSeen),
+      tile('target', s.c + s.w ? `${pct(s.c, s.c + s.w)}%` : '–', t.accuracy),
+      tile('flame', `${streak(totals)}`, t.streak, t.days),
     ),
-    h('section', { class: 'card' }, h('h2', {}, t.last14), activityChart(totals)),
-    h('section', { class: 'card' },
-      h('h2', {}, t.bySet),
-      h('ul', { class: 'set-progress' }, s.sets.map((x) =>
-        h('li', {},
-          h('div', { class: 'sp-head' },
-            h('span', {}, `${x.set.icon} ${nameOf(x.set.name)}`),
-            h('span', { class: 'muted' }, `${x.mastered}/${x.total}`),
-          ),
-          distribution(x, { legend: false }),
-        ))),
-    ),
-    h('section', { class: 'card' },
-      h('div', { class: 'card-head' },
-        h('h2', {}, t.weakWords),
-        top.length ? h('button', { class: 'chip primary', type: 'button', onclick: practiceWeak }, `🔁 ${t.practiceWeak}`) : null,
-      ),
-      top.length
-        ? h('ul', { class: 'review-list' }, top.map(({ word, p }) =>
-            h('li', {},
-              h('span', { class: 'rv-term' }, h('span', { lang: code }, word.term), readingText(word) ? h('small', {}, readingText(word)) : null),
-              h('span', { class: 'rv-answer' }, answerOf(word), h('small', { class: 'muted block' }, `${t.wrongTimes} ${p.w}`)),
-              speakerBtn(word.term, { lang: code }),
-            )))
-        : h('p', { class: 'muted' }, t.noWeak),
-    ),
-    h('section', { class: 'card' },
-      h('h2', {}, t.recentSessions),
-      sessions.length
-        ? h('ul', { class: 'session-list' }, sessions.map((x) =>
-            h('li', {},
-              h('span', { class: 'ses-mode' }, `${MODE_ICONS[x.mode] || ''} ${t.modes[x.mode]?.[0] || x.mode}`),
-              h('span', { class: 'muted' }, new Date(x.t).toLocaleString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })),
-              h('b', {}, `${x.c}/${x.n}`),
-            )))
-        : h('p', { class: 'muted' }, t.noData),
-    ),
+    h('section', { class: 'card' }, distribution(s)),
+    groupTitle(t.last14),
+    h('section', { class: 'card' }, activityChart(totals)),
+    groupTitle(t.bySet),
+    h('ul', { class: 'group list' }, s.sets.map((x) =>
+      h('li', { class: 'row' },
+        h('span', { class: 'set-ic', 'aria-hidden': 'true' }, x.set.icon),
+        h('span', { class: 'row-text' },
+          h('span', { class: 'sp-head' }, h('span', { class: 'row-label' }, nameOf(x.set.name)), h('span', { class: 'row-sub' }, `${x.mastered}/${x.total}`)),
+          distribution(x, { legend: false })),
+      ))),
+    groupTitle(t.weakWords,
+      top.length ? h('button', { class: 'text-btn', type: 'button', onclick: practiceWeak }, icon('repeat', { size: 16 }), t.practiceWeak) : null),
+    top.length
+      ? h('ul', { class: 'group list' }, top.map(({ word, p }) =>
+          h('li', { class: 'row' },
+            h('span', { class: 'rv-term' }, h('span', { lang: code }, word.term), readingText(word) ? h('small', {}, readingText(word)) : null),
+            h('span', { class: 'rv-answer' }, answerOf(word), h('small', { class: 'muted block' }, `${t.wrongTimes} ${p.w}`)),
+            speakerBtn(word.term, { lang: code }),
+          )))
+      : h('p', { class: 'empty' }, icon('check', { size: 20 }), t.noWeak),
+    groupTitle(t.recentSessions),
+    sessions.length
+      ? h('ul', { class: 'group list' }, sessions.map((x) =>
+          h('li', { class: 'row' },
+            h('span', { class: 'row-icon indigo' }, icon(MODE_ICON[x.mode] || 'quiz', { size: 18 })),
+            h('span', { class: 'row-text' },
+              h('span', { class: 'row-label' }, t.modes[x.mode]?.[0] || x.mode),
+              h('span', { class: 'row-sub' }, new Date(x.t).toLocaleString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }))),
+            h('b', { class: 'row-value strong' }, `${x.c}/${x.n}`),
+          )))
+      : h('p', { class: 'empty' }, t.noData),
   );
 }

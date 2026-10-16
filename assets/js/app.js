@@ -1,45 +1,50 @@
-// App shell: routing, header navigation, theme, version and update prompts.
-// Routes: #/ practice setup · #/progress[/<lang>] · #/help[/<section>] · #/changelog
+// App shell: routing, bottom tab bar, theme, version and update prompts.
+// Routes: #/ practice · #/progress[/<lang>] · #/help[/<section>] · #/settings · #/changelog
 import { settings, saveSettings, getLastVersion, setLastVersion } from './store.js';
 import { state, h, fill, render, loadIndex, setUiLang, toast } from './core.js';
 import { uiFor } from './i18n.js';
-import { renderSetup } from './setup.js';
+import { renderPractice } from './practice.js';
 import { renderProgress } from './progress.js';
+import { renderSettings } from './settings.js';
 import { renderHelp, renderChangelog } from './info.js';
 import { setExitHandler, onKeys } from './game.js';
 import { applyTheme } from './theme.js';
+import { icon } from './icons.js';
 import { APP_VERSION } from './app-info.js';
 
-const NAV = [
-  ['#/', '🎯', 'navPractice'],
-  ['#/progress', '📊', 'navProgress'],
-  ['#/help', '📖', 'navHelp'],
+const TABS = [
+  ['', 'practice', 'navPractice'],
+  ['progress', 'progress', 'navProgress'],
+  ['help', 'guide', 'navHelp'],
+  ['settings', 'settings', 'navSettings'],
 ];
 
-function renderNav(route) {
+function renderTabBar(active) {
   const t = state.t;
-  document.querySelector('.brand-name').textContent = t.appName;
-  document.querySelector('.brand-tag').textContent = t.tagline;
   document.title = t.appName;
-  fill(document.getElementById('nav'), NAV.map(([href, icon, key]) => {
-    const active = href === '#/' ? route === '' : route.startsWith(href.slice(2));
-    return h('a', { href, class: `nav-item${active ? ' active' : ''}`, 'aria-current': active ? 'page' : null },
-      h('span', { class: 'nav-icon', 'aria-hidden': 'true' }, icon),
-      h('span', { class: 'nav-label' }, t[key]));
+  fill(document.getElementById('tabbar'), TABS.map(([page, ic, key]) => {
+    const on = page === active;
+    return h('a', { href: `#/${page}`, class: `tab${on ? ' active' : ''}`, 'aria-current': on ? 'page' : null },
+      icon(ic, { size: 26 }),
+      h('span', { class: 'tab-label' }, t[key]));
   }));
 }
 
 function route() {
+  state.navId++;
   onKeys(null);
+  document.body.classList.remove('in-game');
   setUiLang();
   const path = location.hash.replace(/^#\/?/, '');
-  const [page, arg] = path.split('/');
-  renderNav(page === 'changelog' ? 'help' : page || '');
-  document.getElementById('screen').dataset.page = page || 'setup';
+  const [page = '', arg] = path.split('/');
+  const tab = page === 'changelog' ? 'settings' : TABS.some(([p]) => p === page) ? page : '';
+  renderTabBar(tab);
+  document.getElementById('screen').dataset.page = tab || 'practice';
   if (page === 'progress') return renderProgress(arg);
   if (page === 'help') return renderHelp(arg);
+  if (page === 'settings') return renderSettings();
   if (page === 'changelog') return renderChangelog();
-  return renderSetup();
+  return renderPractice();
 }
 
 function goHome() {
@@ -91,7 +96,6 @@ async function boot() {
     saveSettings();
   }
   setExitHandler(goHome);
-  document.querySelector('.brand').addEventListener('click', goHome);
   window.addEventListener('hashchange', route);
   route();
   announceVersion();

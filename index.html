@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>ศัพท์จำเป็น</title>
   <meta name="description" content="เกมจำคำศัพท์จำเป็นหลายภาษา (อังกฤษ เกาหลี ญี่ปุ่น) แปลเป็นไทย ใช้ได้ฟรี">
-  <meta name="theme-color" content="#f6f4ff" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#14121f" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f2f3f7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0e0f13" media="(prefers-color-scheme: dark)">
   <meta name="color-scheme" content="light dark">
   <script>
     // Apply the saved theme before first paint to avoid a flash of the wrong theme.
@@ -47,21 +47,10 @@
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-  <header class="app-header">
-    <div class="header-inner">
-      <button class="brand" type="button">
-        <img class="brand-logo" src="assets/icons/icon-192.png" alt="" width="38" height="38">
-        <span class="brand-text">
-          <span class="brand-name">ศัพท์จำเป็น</span>
-          <span class="brand-tag">เกมจำคำศัพท์จำเป็นหลายภาษา</span>
-        </span>
-      </button>
-      <nav id="nav" class="nav" aria-label="เมนู"></nav>
-    </div>
-  </header>
   <main id="screen" class="screen">
-    <div class="loading" aria-busy="true">⏳</div>
+    <div class="loading" aria-busy="true"><span class="spinner"></span></div>
   </main>
+  <nav id="tabbar" class="tabbar" aria-label="เมนูหลัก"></nav>
   <div id="toast" aria-live="polite"></div>
   <noscript>กรุณาเปิดใช้งาน JavaScript</noscript>
   <script type="module" src="assets/js/app.js"></script>
