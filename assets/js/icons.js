@@ -1,6 +1,6 @@
 // Line icons drawn for this app (24×24, stroke = currentColor). No third-party icon set.
 const P = {
-  practice: '<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/><path d="M22 9v6"/>',
+  home: '<path d="M3 10.5L12 3l9 7.5"/><path d="M5 9v11.5h5V15h4v5.5h5V9"/>',
   progress: '<path d="M5 20v-8"/><path d="M11 20V5"/><path d="M17 20v-11"/><path d="M2 20h20"/>',
   guide: '<path d="M4 4.5A1.5 1.5 0 0 1 5.5 3H20v15H5.5A1.5 1.5 0 0 0 4 19.5z"/><path d="M4 19.5A1.5 1.5 0 0 0 5.5 21H20"/><path d="M9 8h7"/>',
   settings: '<path d="M4 6h9"/><path d="M19 6h1"/><circle cx="16" cy="6" r="2.5"/><path d="M4 12h2"/><path d="M12 12h8"/><circle cx="9" cy="12" r="2.5"/><path d="M4 18h11"/><circle cx="18" cy="18" r="2.5"/>',

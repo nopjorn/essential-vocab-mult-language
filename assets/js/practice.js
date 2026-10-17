@@ -1,12 +1,43 @@
-// Practice tab (home): language switch, progress summary, game mode, word sets, start.
+// Home tab: language switch, progress summary, game mode and word sets, plus
+// startPractice() for the Start button in the middle of the tab bar.
 // App-wide options (translation, question count, theme…) live in the Settings tab.
 import { settings, saveSettings, wordKey, getProgress, MASTERED_BOX } from './store.js';
-import { state, h, render, nameOf, loadLang, setUiLang, ensureAudio, pageHead, groupTitle, toast } from './core.js';
+import { state, h, fill, render, nameOf, levelOf, loadLang, setUiLang, ensureAudio, pageHead, groupTitle, toast } from './core.js';
 import { speechSupported } from './speech.js';
 import { MODES, itemsFor, pickItems, startGame } from './game.js';
 import { langSummary, dayTotals, streak } from './progress.js';
 import { icon, MODE_ICON } from './icons.js';
 import { isIOS, isStandalone } from './app-info.js';
+
+// Sets chosen for a language; new users start with its first two sets.
+function chosenIds(vocab) {
+  return settings.sets[vocab.code] || vocab.sets.slice(0, 2).map((x) => x.id);
+}
+
+// Start a round with the current language, mode and sets. The Start button lives in
+// the tab bar, so this can run from any tab; when the selection can't make a round,
+// it sends the user Home to fix it.
+export async function startPractice() {
+  const t = state.t;
+  ensureAudio(); // iOS only allows speech after a tap, so unlock it before awaiting
+  const nav = state.navId;
+  let vocab;
+  try {
+    vocab = await loadLang(settings.lang);
+  } catch (err) {
+    console.error(err);
+    return toast(t.loadError);
+  }
+  if (nav !== state.navId) return;
+  if (settings.mode === 'listen' && !speechSupported) settings.mode = 'quiz';
+  const items = itemsFor(vocab, chosenIds(vocab));
+  const problem = !items.length ? t.pickSet : settings.mode !== 'flash' && items.length < 4 ? t.notEnough : null;
+  if (problem) {
+    if (location.hash && location.hash !== '#/') location.hash = '#/';
+    return toast(problem);
+  }
+  startGame(pickItems(items, settings.count), items);
+}
 
 export async function renderPractice() {
   setUiLang();
@@ -25,7 +56,7 @@ export async function renderPractice() {
   const code = vocab.code;
   if (settings.mode === 'listen' && !speechSupported) settings.mode = 'quiz';
 
-  const chosen = new Set(settings.sets[code] || vocab.sets.slice(0, 2).map((s) => s.id));
+  const chosen = new Set(chosenIds(vocab));
   const persistSets = () => {
     settings.sets[code] = [...chosen];
     saveSettings();
@@ -56,7 +87,7 @@ export async function renderPractice() {
   const summary = h('a', { class: 'summary', href: `#/progress/${code}` },
     h('div', { class: 'summary-main' },
       h('span', { class: 'summary-label' }, t.mastered),
-      h('div', { class: 'summary-num' }, h('b', {}, s.mastered), h('span', {}, ` / ${s.total} ${t.words}`)),
+      h('div', { class: 'summary-num' }, h('b', {}, s.mastered), h('span', {}, ` / ${s.total.toLocaleString()} ${t.words}`)),
       h('div', { class: 'meter' }, h('span', { class: 'meter-fill', style: `width:${s.total ? (s.mastered / s.total) * 100 : 0}%` })),
     ),
     h('div', { class: 'summary-side' },
@@ -66,26 +97,15 @@ export async function renderPractice() {
     h('span', { class: 'summary-chev' }, icon('chevronRight', { size: 20 })),
   );
 
-  // ---- start button (fixed above the tab bar) ----
-  const ctaSub = h('small', { class: 'cta-sub' });
-  const startBtn = h('button', { class: 'btn primary big cta', type: 'button' },
-    icon('play', { size: 18, fill: true }),
-    h('span', { class: 'cta-text' }, h('span', {}, t.start), ctaSub));
-  const refreshCta = () => {
+  // ---- what Start will play (the button itself is in the tab bar) ----
+  const setsFoot = h('p', { class: 'group-foot sets-foot' });
+  const refreshFoot = () => {
     const words = vocab.sets.filter((x) => chosen.has(x.id)).reduce((n, x) => n + x.words.length, 0);
     const q = settings.mode === 'match' || settings.count === 0 ? words : Math.min(settings.count, words);
-    startBtn.disabled = chosen.size === 0;
-    ctaSub.textContent = chosen.size
-      ? `${t.modes[settings.mode][0]} · ${chosen.size} ${t.setsUnit} · ${q} ${t.questionsUnit}`
+    setsFoot.textContent = chosen.size
+      ? t.setsSummary.replace('{sets}', chosen.size).replace('{words}', words.toLocaleString()).replace('{q}', q)
       : t.pickSet;
   };
-  startBtn.addEventListener('click', () => {
-    ensureAudio();
-    const items = itemsFor(vocab, [...chosen]);
-    if (!items.length) return toast(t.pickSet);
-    if (settings.mode !== 'flash' && items.length < 4) return toast(t.notEnough);
-    startGame(pickItems(items, settings.count), items);
-  });
 
   // ---- game modes ----
   const modeDesc = h('p', { class: 'mode-desc-line' }, t.modes[settings.mode][1]);
@@ -104,27 +124,33 @@ export async function renderPractice() {
           b.setAttribute('aria-checked', String(MODES[i] === m));
         });
         modeDesc.textContent = t.modes[m][1];
-        refreshCta();
+        refreshFoot();
       },
     },
     h('span', { class: 'mode-ic' }, icon(MODE_ICON[m], { size: 26 })),
     h('span', { class: 'mode-name' }, t.modes[m][0])),
   );
 
-  // ---- word sets ----
-  const setRows = vocab.sets.map((set) => {
+  // ---- word sets, one level at a time ----
+  const levels = [...new Set(vocab.sets.map(levelOf))].sort();
+  let level = settings.level[code];
+  if (!levels.includes(level)) level = levelOf(vocab.sets.find((x) => chosen.has(x.id)) || vocab.sets[0]);
+
+  const rowsByLevel = new Map(levels.map((lv) => [lv, []]));
+  for (const set of vocab.sets) {
     const total = set.words.length;
     const mastered = set.words.filter((w) => getProgress(wordKey(code, set.id, w.term)).b >= MASTERED_BOX).length;
-    return h('label', { class: 'row set-row' },
+    rowsByLevel.get(levelOf(set)).push(h('label', { class: 'row set-row' },
       h('input', {
         type: 'checkbox',
         class: 'sr-only',
         checked: chosen.has(set.id),
+        'data-set': set.id,
         onchange: (e) => {
           if (e.target.checked) chosen.add(set.id);
           else chosen.delete(set.id);
           persistSets();
-          refreshCta();
+          refreshFoot();
         },
       }),
       h('span', { class: 'set-ic', 'aria-hidden': 'true' }, set.icon),
@@ -134,14 +160,49 @@ export async function renderPractice() {
         h('span', { class: 'meter thin' }, h('span', { class: 'meter-fill', style: `width:${total ? (mastered / total) * 100 : 0}%` })),
       ),
       h('span', { class: 'check-circle', 'aria-hidden': 'true' }, icon('check', { size: 16 })),
-    );
-  });
+    ));
+  }
+
+  const setsList = h('div', { class: 'group list sets-list' });
+  const levelInfo = h('p', { class: 'level-info' });
+  const showLevel = () => {
+    const sets = vocab.sets.filter((x) => levelOf(x) === level);
+    const words = sets.reduce((n, x) => n + x.words.length, 0);
+    levelInfo.textContent = t.levelInfo
+      .replace('{name}', t.levelNames[level])
+      .replace('{sets}', sets.length)
+      .replace('{words}', words.toLocaleString());
+    fill(setsList, rowsByLevel.get(level));
+  };
+  const levelSeg = levels.length > 1
+    ? h('div', { class: 'segmented level-seg', role: 'radiogroup', 'aria-label': t.level },
+        levels.map((lv) =>
+          h('label', {},
+            h('input', {
+              type: 'radio',
+              name: 'level',
+              value: lv,
+              checked: lv === level,
+              onchange: () => {
+                level = lv;
+                settings.level[code] = lv;
+                saveSettings();
+                showLevel();
+              },
+            }),
+            h('span', {}, t.levelN.replace('{n}', lv)))))
+    : null;
+
+  // Select all / clear act on the level being shown.
   const setAll = (on) => {
-    chosen.clear();
-    if (on) vocab.sets.forEach((x) => chosen.add(x.id));
-    setRows.forEach((r) => (r.querySelector('input').checked = on));
+    for (const row of rowsByLevel.get(level)) {
+      const input = row.querySelector('input');
+      input.checked = on;
+      if (on) chosen.add(input.dataset.set);
+      else chosen.delete(input.dataset.set);
+    }
     persistSets();
-    refreshCta();
+    refreshFoot();
   };
 
   const setsTitle = groupTitle(t.chooseSets,
@@ -149,7 +210,8 @@ export async function renderPractice() {
     h('button', { class: 'text-btn', type: 'button', onclick: () => setAll(false) }, t.selectNone));
   setsTitle.classList.add('sets-title');
 
-  refreshCta();
+  showLevel();
+  refreshFoot();
 
   render(
     pageHead(t.practiceTitle, { sub: t.practiceSub }),
@@ -164,8 +226,11 @@ export async function renderPractice() {
     groupTitle(t.chooseMode),
     h('div', { class: 'mode-grid', role: 'radiogroup', 'aria-label': t.chooseMode }, modeTiles),
     modeDesc,
-    setsTitle,
-    h('div', { class: 'group list sets-list' }, setRows),
-    h('div', { class: 'cta-bar' }, startBtn),
+    h('section', { class: 'sets-col' },
+      setsTitle,
+      levelSeg,
+      levelInfo,
+      setsList,
+      setsFoot),
   );
 }

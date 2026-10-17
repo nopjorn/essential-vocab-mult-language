@@ -71,6 +71,8 @@ function distractors(item, pool, n = 3) {
 // ---------- shell ----------
 
 export function startGame(items, pool) {
+  // The game replaces whatever page is showing: stop that page's pending async render.
+  state.navId++;
   document.body.classList.add('in-game');
   const session = {
     mode: settings.mode,

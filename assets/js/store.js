@@ -30,6 +30,7 @@ const DEFAULT_SETTINGS = {
   lang: 'en',
   target: 'th',
   sets: {}, // { [lang]: [setId, ...] }
+  level: {}, // { [lang]: 1 | 2 | 3 } level shown in the word-set list
   mode: 'quiz',
   count: 10,
   showRoman: true,

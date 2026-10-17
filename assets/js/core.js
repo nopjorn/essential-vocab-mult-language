@@ -81,6 +81,9 @@ export function langMeta(code) {
   return state.index.learn.find((l) => l.code === code);
 }
 
+// Word sets belong to level 1 (beginner), 2 (everyday) or 3 (intermediate).
+export const levelOf = (set) => set.level || 1;
+
 // Translation shown for a word: the chosen target if present, else Thai.
 export function answerOf(word) {
   return word.tr[settings.target] || word.tr.th;

@@ -1,6 +1,6 @@
 // Progress page: overview across all languages, and a detail view per language.
 import { settings, saveSettings, wordKey, getProgress, getStats, dayKey, MASTERED_BOX } from './store.js';
-import { state, h, render, nameOf, loadAllLangs, loadLang, langMeta, answerOf, speakerBtn, readingText, pageHead, groupTitle } from './core.js';
+import { state, h, render, nameOf, levelOf, loadAllLangs, loadLang, langMeta, answerOf, speakerBtn, readingText, pageHead, groupTitle } from './core.js';
 import { itemsFor, startGame } from './game.js';
 import { icon, MODE_ICON } from './icons.js';
 
@@ -201,6 +201,28 @@ export async function renderProgress(lang) {
 
 // ---------- one language ----------
 
+// Per-set progress, grouped by level when the language has more than one.
+function bySet(s) {
+  const t = state.t;
+  const levels = [...new Set(s.sets.map((x) => levelOf(x.set)))].sort();
+  return levels.map((lv) => {
+    const sets = s.sets.filter((x) => levelOf(x.set) === lv);
+    const mastered = sets.reduce((n, x) => n + x.mastered, 0);
+    const total = sets.reduce((n, x) => n + x.total, 0);
+    return [
+      groupTitle(levels.length > 1 ? `${t.bySet} · ${t.levelN.replace('{n}', lv)} ${t.levelNames[lv]}` : t.bySet,
+        h('span', { class: 'muted' }, `${mastered}/${total}`)),
+      h('ul', { class: 'group list' }, sets.map((x) =>
+        h('li', { class: 'row' },
+          h('span', { class: 'set-ic', 'aria-hidden': 'true' }, x.set.icon),
+          h('span', { class: 'row-text' },
+            h('span', { class: 'sp-head' }, h('span', { class: 'row-label' }, nameOf(x.set.name)), h('span', { class: 'row-sub' }, `${x.mastered}/${x.total}`)),
+            distribution(x, { legend: false })),
+        ))),
+    ];
+  });
+}
+
 function renderLang(s) {
   const t = state.t;
   const code = s.vocab.code;
@@ -240,14 +262,7 @@ function renderLang(s) {
     h('section', { class: 'card' }, distribution(s)),
     groupTitle(t.last14),
     h('section', { class: 'card' }, activityChart(totals)),
-    groupTitle(t.bySet),
-    h('ul', { class: 'group list' }, s.sets.map((x) =>
-      h('li', { class: 'row' },
-        h('span', { class: 'set-ic', 'aria-hidden': 'true' }, x.set.icon),
-        h('span', { class: 'row-text' },
-          h('span', { class: 'sp-head' }, h('span', { class: 'row-label' }, nameOf(x.set.name)), h('span', { class: 'row-sub' }, `${x.mastered}/${x.total}`)),
-          distribution(x, { legend: false })),
-      ))),
+    bySet(s),
     groupTitle(t.weakWords,
       top.length ? h('button', { class: 'text-btn', type: 'button', onclick: practiceWeak }, icon('repeat', { size: 16 }), t.practiceWeak) : null),
     top.length
