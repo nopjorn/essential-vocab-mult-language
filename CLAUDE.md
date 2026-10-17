@@ -47,11 +47,12 @@ assets/js/
                 update toasts, SW; leaving a game re-routes to the page it was started from
   core.js       shared state (index, ui strings, navId), h() DOM helper, fill/render, loaders, pageHead/groupTitle,
                 speaker/term widgets, toast
-  practice.js   Home tab: language switch, summary card, mode tiles, set list + selection summary;
+  practice.js   Home tab: language switch, Today card (daily-goal ring, streak, Continue / Quick 5), summary card, mode tiles,
+                set list + selection summary;
                 startPractice() (used by the tab bar Start button; sends you Home if the selection can't start)
   settings.js   Settings tab: translation/app language, questions per round, reading, auto speak, theme,
-                per-language reset, about (version, what's new, guide, install)
-  game.js       item building, weighted picking, distractors, all 6 modes (swipe flashcards), results screen
+                daily goal, per-language reset, about (version, what's new, guide, install)
+  game.js       item building, weighted picking, distractors, all 6 modes (swipe flashcards), results screen (animated ring, newly mastered words, vs last game, goal progress, confetti)
   icons.js      hand-drawn SVG line icons (icon(name)), MODE_ICON map
   progress.js   progress overview + per-language detail (tiles, stacked bars, 14-day chart, weak words)
   info.js       guide and changelog pages
@@ -117,7 +118,7 @@ NGSL/NAWL (CC BY-SA), TOPIK/JLPT or other published lists.
 - CSS class names are global: check `grep` before adding one (e.g. `.stack` once clipped the
   results buttons because the progress bar used the same name).
 - UI text goes in `i18n.js` (both `th` and `en`); pages read it through `state.t`.
-- Storage keys: `evocab.settings.v1`, `evocab.progress.v1` (`lang|setId|term` → `{b,c,w,t}`),
+- Storage keys: `evocab.settings.v1` (includes `dailyGoal`, default 20 answers/day), `evocab.progress.v1` (`lang|setId|term` → `{b,c,w,t}`),
   `evocab.stats.v1` (`days[YYYY-MM-DD][lang] = [answers, correct]`, `sessions[]`), `evocab.lastVersion`.
   Changing a format needs a migration and a major version bump.
 - Distractors must differ from the answer in both term and translation (homonyms like 눈 eye/snow).

@@ -33,6 +33,7 @@ const DEFAULT_SETTINGS = {
   level: {}, // { [lang]: 1 | 2 | 3 } level shown in the word-set list
   mode: 'quiz',
   count: 10,
+  dailyGoal: 20, // answers per day; the Home ring fills toward it
   showRoman: true,
   autoSpeak: true,
   theme: 'system', // 'system' | 'light' | 'dark'
@@ -86,6 +87,11 @@ export function record(key, isCorrect) {
   d[0] += 1;
   if (isCorrect) d[1] += 1;
   save(STATS_KEY, stats);
+}
+
+// Answers given today in one language.
+export function todayAnswers(lang) {
+  return stats.days[dayKey()]?.[lang]?.[0] || 0;
 }
 
 export function logSession(session) {

@@ -2,6 +2,22 @@
 
 <!-- Generated from data/changelog.json by `node scripts/bump-version.mjs --sync`. Do not edit by hand. -->
 
+## [1.4.0] - 2026-10-17
+
+- หน้าหลักมีการ์ด "วันนี้": วงแหวนเป้าหมายรายวัน วันเรียนต่อเนื่อง ปุ่ม "เล่นต่อ" และ "เล่นด่วน 5 คำ" สำหรับรอบสั้น ๆ
+- ตั้งเป้าหมายรายวันได้ที่ตั้งค่า (10 / 20 / 50 / 100 คำตอบ)
+- หน้าสรุปผลใหม่: วงแหวนและตัวเลขเคลื่อนไหว แสดงคำที่เพิ่งจำได้ เทียบความแม่นยำกับรอบก่อน วันเรียนต่อเนื่อง และความคืบหน้าเป้าหมาย
+- มีเอฟเฟกต์ฉลองเมื่อทำเป้าหมายรายวันครบหรือตอบถูกทั้งหมด (ปิดอัตโนมัติถ้าตั้งค่าลดการเคลื่อนไหวในเครื่อง)
+
+<details><summary>English</summary>
+
+- Home has a new "Today" card: daily goal ring, day streak, a "Continue" button and a "Quick 5" round for short sessions
+- Set your daily goal in Settings (10 / 20 / 50 / 100 answers)
+- New results screen: animated ring and score, newly mastered words, accuracy compared with the last game, day streak and goal progress
+- A small celebration plays when you reach the daily goal or get everything right (off when Reduce Motion is on)
+
+</details>
+
 ## [1.3.0] - 2026-10-16
 
 - เพิ่มคำศัพท์เป็นประมาณ 3,000 คำต่อภาษา (ขอบเขตใกล้เคียง Oxford 3000): อังกฤษ 3,291 คำ เกาหลี 3,216 คำ ญี่ปุ่น 3,174 คำ

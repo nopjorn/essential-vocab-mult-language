@@ -7,6 +7,7 @@ export const GUIDE = {
       items: [
         'แถบเมนูด้านล่างมี: หน้าหลัก · ความคืบหน้า · ปุ่มเริ่มฝึก (วงกลมตรงกลาง) · คู่มือ · ตั้งค่า',
         'ในหน้าหลัก เลือกภาษาที่จะเรียน (อังกฤษ เกาหลี ญี่ปุ่น) จากแถบด้านบน',
+        'การ์ด "วันนี้" ในหน้าหลักแสดงวงแหวนเป้าหมายรายวัน และวันเรียนต่อเนื่อง แตะ "เล่นต่อ" เพื่อเริ่มรอบปกติ หรือ "เล่นด่วน 5 คำ" สำหรับรอบสั้น ๆ ไม่กี่นาที',
         'คำศัพท์แต่ละภาษามีประมาณ 3,000 คำ แบ่งเป็น 3 ระดับ: ระดับ 1 พื้นฐาน · ระดับ 2 ชีวิตประจำวัน · ระดับ 3 ต่อยอด แตะแถบระดับเหนือรายการชุดคำศัพท์เพื่อสลับ (เลือกชุดจากหลายระดับพร้อมกันได้)',
         'เลือกโหมดเกม แล้วแตะชุดคำศัพท์ที่อยากฝึก (เลือกได้หลายชุด เครื่องหมายถูกด้านขวาคือชุดที่เลือกแล้ว)',
         'แตะปุ่ม "เริ่มฝึก" ตรงกลางแถบเมนูด้านล่าง กดได้จากทุกหน้า แอปจะเริ่มด้วยภาษา โหมด และชุดคำศัพท์ที่เลือกไว้ล่าสุด',
@@ -32,12 +33,13 @@ export const GUIDE = {
         'คำที่อยู่ระดับ 3 ขึ้นไปนับว่า "จำได้แล้ว"',
         'เกมจะสุ่มคำที่ยังไม่เคยเห็นและคำที่ยังจำไม่ได้มาให้บ่อยกว่า',
         'จบเกมแล้วแตะ "ฝึกคำที่ผิดอีกครั้ง" เพื่อทบทวนเฉพาะคำที่พลาด',
+        'หน้าสรุปผลบอกคำที่เพิ่งจำได้ เทียบความแม่นยำกับรอบก่อน และความคืบหน้าของเป้าหมายรายวัน',
       ],
     },
     {
       id: 'progress', icon: 'progress', color: 'orange', title: 'ดูความคืบหน้า',
       items: [
-        'การ์ดสรุปในหน้าหลักบอกจำนวนคำที่จำได้ วันเรียนต่อเนื่อง และความแม่นยำของภาษาที่เลือก แตะเพื่อดูรายละเอียด',
+        'การ์ดสรุปในหน้าหลักบอกจำนวนคำที่จำได้และความแม่นยำของภาษาที่เลือก แตะเพื่อดูรายละเอียด',
         'แท็บ "ความคืบหน้า" แสดงภาพรวมทุกภาษา และกราฟจำนวนคำตอบ 14 วันล่าสุด (แตะแท่งกราฟเพื่อดูตัวเลข)',
         'เลือกภาษาด้านบนเพื่อดูความคืบหน้าแยกชุด (จัดกลุ่มตามระดับ) คำที่ผิดบ่อย (แตะ "ฝึกคำเหล่านี้" ได้ทันที) และประวัติการเล่น',
       ],
@@ -47,6 +49,7 @@ export const GUIDE = {
       items: [
         'ภาษาคำแปลและภาษาของแอป: ไทย หรือ English',
         'จำนวนข้อต่อรอบ: 10, 20, 30 หรือทั้งหมด',
+        'เป้าหมายรายวัน: 10, 20, 50 หรือ 100 คำตอบต่อวัน (ค่าเริ่มต้น 20)',
         'แสดงคำอ่าน (คานะและอักษรโรมัน) และออกเสียงอัตโนมัติ',
         'ธีม: ตามระบบ (ค่าเริ่มต้น) สว่าง หรือ มืด',
         'ล้างความคืบหน้าแยกตามภาษา และดูเวอร์ชันกับรายการ "มีอะไรใหม่"',
@@ -93,6 +96,7 @@ export const GUIDE = {
       items: [
         'The tab bar at the bottom has: Home · Progress · the Start button (round, in the middle) · Guide · Settings',
         'On Home, choose the language to learn (English, Korean, Japanese) at the top',
+        'The "Today" card on Home shows your daily goal ring and day streak. Tap "Continue" for a normal round, or "Quick 5" for a short round of a few minutes',
         'Each language has about 3,000 words in 3 levels: 1 Beginner · 2 Everyday · 3 Intermediate. Switch levels with the bar above the word sets (you can pick sets from several levels at once)',
         'Choose a game mode, then tap the word sets you want (several at once; a check mark means selected)',
         'Tap "Start" in the middle of the tab bar, from any screen. It uses the language, mode and sets you chose last',
@@ -118,12 +122,13 @@ export const GUIDE = {
         'Words at level 3 or higher count as "mastered"',
         'New and weak words come up more often',
         'After a game, tap "Practice mistakes" to review only the words you missed',
+        'The results screen shows newly mastered words, your accuracy compared with the last game, and daily-goal progress',
       ],
     },
     {
       id: 'progress', icon: 'progress', color: 'orange', title: 'Tracking progress',
       items: [
-        'The summary card on Home shows words mastered, day streak and accuracy for the chosen language; tap it for details',
+        'The summary card on Home shows words mastered and accuracy for the chosen language; tap it for details',
         'The Progress tab shows all languages and answers over the last 14 days (tap a bar for its numbers)',
         'Pick a language at the top for per-set progress (grouped by level), most-missed words ("Practice these" in one tap) and recent games',
       ],
@@ -133,6 +138,7 @@ export const GUIDE = {
       items: [
         'Translation & app language: Thai or English',
         'Questions per round: 10, 20, 30 or all',
+        'Daily goal: 10, 20, 50 or 100 answers per day (default 20)',
         'Show reading (kana and romanization) and auto pronounce',
         'Theme: System (default), Light or Dark',
         'Reset progress per language, and see the version and "What\'s new"',

@@ -7,6 +7,7 @@ import { icon } from './icons.js';
 import { versionLabel } from './app-info.js';
 
 const COUNTS = [10, 20, 30, 0]; // 0 = all
+const GOALS = [10, 20, 50, 100];
 
 function rowIcon(name, color) {
   return h('span', { class: `row-icon ${color}` }, icon(name, { size: 18 }));
@@ -75,6 +76,21 @@ export async function renderSettings() {
       )),
   );
 
+  const goalSeg = h('div', { class: 'segmented', role: 'radiogroup', 'aria-label': t.dailyGoal },
+    GOALS.map((g) =>
+      h('label', {},
+        h('input', {
+          type: 'radio',
+          name: 'goal',
+          value: g,
+          checked: settings.dailyGoal === g,
+          onchange: () => {
+            settings.dailyGoal = g;
+            saveSettings();
+          },
+        }),
+        h('span', {}, String(g)))));
+
   // Voice availability for each language (needs its speech tag, so load the vocab files).
   let voiceNote = null;
   if (!speechSupported) voiceNote = t.noSpeech;
@@ -121,6 +137,9 @@ export async function renderSettings() {
       h('div', { class: 'row stacked' },
         h('div', { class: 'row-head' }, rowIcon('hash', 'indigo'), rowText(t.questionsPerRound)),
         countSeg),
+      h('div', { class: 'row stacked' },
+        h('div', { class: 'row-head' }, rowIcon('target', 'green'), rowText(t.dailyGoal, t.dailyGoalSub)),
+        goalSeg),
       toggleRow('showRoman', 'eye', 'teal', t.showReading, t.showReadingSub),
       speechSupported ? toggleRow('autoSpeak', 'speaker', 'orange', t.autoSpeak, t.autoSpeakSub) : null,
     ),
