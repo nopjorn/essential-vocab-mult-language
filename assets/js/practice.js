@@ -1,13 +1,15 @@
 // Home tab: language switch, progress summary, game mode and word sets, plus
 // startPractice() for the Start button in the middle of the tab bar.
 // App-wide options (translation, question count, theme…) live in the Settings tab.
-import { settings, saveSettings, wordKey, getProgress, MASTERED_BOX } from './store.js';
+import { settings, saveSettings, wordKey, getProgress, todayAnswers, MASTERED_BOX } from './store.js';
 import { state, h, fill, render, nameOf, levelOf, loadLang, setUiLang, ensureAudio, pageHead, groupTitle, toast } from './core.js';
 import { speechSupported } from './speech.js';
 import { MODES, itemsFor, pickItems, startGame } from './game.js';
 import { langSummary, dayTotals, streak } from './progress.js';
 import { icon, MODE_ICON } from './icons.js';
 import { isIOS, isStandalone } from './app-info.js';
+
+const QUICK_COUNT = 5;
 
 // Sets chosen for a language; new users start with its first two sets.
 function chosenIds(vocab) {
@@ -17,7 +19,7 @@ function chosenIds(vocab) {
 // Start a round with the current language, mode and sets. The Start button lives in
 // the tab bar, so this can run from any tab; when the selection can't make a round,
 // it sends the user Home to fix it.
-export async function startPractice() {
+export async function startPractice({ count = settings.count } = {}) {
   const t = state.t;
   ensureAudio(); // iOS only allows speech after a tap, so unlock it before awaiting
   const nav = state.navId;
@@ -36,7 +38,7 @@ export async function startPractice() {
     if (location.hash && location.hash !== '#/') location.hash = '#/';
     return toast(problem);
   }
-  startGame(pickItems(items, settings.count), items);
+  startGame(pickItems(items, count), items);
 }
 
 export async function renderPractice() {
@@ -91,10 +93,25 @@ export async function renderPractice() {
       h('div', { class: 'meter' }, h('span', { class: 'meter-fill', style: `width:${s.total ? (s.mastered / s.total) * 100 : 0}%` })),
     ),
     h('div', { class: 'summary-side' },
-      h('span', { class: 'chip-stat', title: t.streak }, icon('flame', { size: 16 }), `${streak(dayTotals(code))} ${t.days}`),
       h('span', { class: 'chip-stat', title: t.accuracy }, icon('target', { size: 16 }), answered ? `${Math.round((s.c / answered) * 100)}%` : '–'),
     ),
     h('span', { class: 'summary-chev' }, icon('chevronRight', { size: 20 })),
+  );
+
+  // ---- today: daily goal ring, streak and one-tap start ----
+  const goal = settings.dailyGoal;
+  const done = todayAnswers(code);
+  const goalPct = goal ? Math.min(100, Math.round((done / goal) * 100)) : 0;
+  const days = streak(dayTotals(code));
+  const todayCard = h('section', { class: 'today-card' },
+    h('div', { class: `goal-ring${goal && done >= goal ? ' done' : ''}`, style: `--p:${goalPct}`, role: 'img', 'aria-label': `${t.todayGoal} ${done}/${goal}` },
+      h('b', {}, goal ? `${done}` : '–'), goal ? h('span', {}, `/${goal}`) : null),
+    h('div', { class: 'today-text' },
+      h('strong', {}, goal && done >= goal ? t.goalReached : done ? t.todayKeepGoing : t.todayStart),
+      h('span', { class: 'today-sub' }, icon('flame', { size: 15 }), days ? `${days} ${t.days}` : t.streakStart)),
+    h('div', { class: 'today-actions' },
+      h('button', { class: 'btn primary', type: 'button', onclick: () => startPractice() }, icon('play', { size: 16, fill: true }), t.continueBtn),
+      h('button', { class: 'btn', type: 'button', onclick: () => startPractice({ count: QUICK_COUNT }) }, icon('clock', { size: 16 }), t.quickN.replace('{n}', QUICK_COUNT))),
   );
 
   // ---- what Start will play (the button itself is in the tab bar) ----
@@ -216,6 +233,7 @@ export async function renderPractice() {
   render(
     pageHead(t.practiceTitle, { sub: t.practiceSub }),
     langSwitch,
+    todayCard,
     summary,
     isIOS() && !isStandalone()
       ? h('a', { class: 'install-card', href: '#/help/install' },

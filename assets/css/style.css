@@ -1054,3 +1054,75 @@ input:checked + .switch::after { transform: translateX(20px); }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* today card on Home: daily goal ring, streak, one-tap start */
+.today-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 10px 14px;
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+.goal-ring {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  width: 68px;
+  height: 68px;
+  padding-top: 22px;
+  border-radius: 50%;
+  background: conic-gradient(var(--primary) calc(var(--p) * 1%), var(--fill) 0);
+  font-variant-numeric: tabular-nums;
+}
+.goal-ring::before { content: ""; position: absolute; inset: 7px; border-radius: 50%; background: var(--surface); }
+.goal-ring > * { position: relative; }
+.goal-ring b { font-size: 20px; font-weight: 800; }
+.goal-ring span { font-size: 12px; color: var(--muted); }
+.goal-ring.done { background: conic-gradient(var(--good-strong) 100%, var(--fill) 0); }
+.today-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.today-text strong { font-size: 17px; }
+.today-sub { display: inline-flex; align-items: center; gap: 4px; font-size: 14px; color: var(--muted); }
+.today-sub .icon { color: var(--ic-orange); }
+.today-actions { grid-column: 1 / -1; display: flex; gap: 10px; }
+.today-actions .btn { flex: 1; gap: 6px; }
+
+/* results extras */
+.ring-bar { transition: stroke-dasharray 0.9s cubic-bezier(0.22, 1, 0.36, 1); }
+.result-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: -4px 0 16px; }
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 700;
+}
+.chip.up { background: var(--good-soft); color: var(--good); }
+.chip.down { background: var(--bad-soft); color: var(--bad); }
+.mastered-box { margin-top: 14px; padding: 14px; border-radius: 16px; background: var(--good-soft); color: var(--good); }
+.mastered-box strong { display: flex; align-items: center; gap: 6px; font-size: 15px; }
+.mastered-words { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.word-chip { padding: 4px 10px; border-radius: 999px; background: var(--surface); color: var(--text); font-size: 15px; font-weight: 600; }
+.result-hero { position: relative; overflow: hidden; }
+.confetti { position: absolute; inset: 0; pointer-events: none; }
+.confetti i {
+  position: absolute;
+  top: -12px;
+  width: 8px;
+  height: 12px;
+  border-radius: 2px;
+  opacity: 0;
+  animation: confetti-fall 1.8s ease-in forwards;
+}
+@keyframes confetti-fall {
+  0% { opacity: 1; transform: translate(0, 0) rotate(0); }
+  100% { opacity: 0; transform: translate(var(--drift), 380px) rotate(540deg); }
+}

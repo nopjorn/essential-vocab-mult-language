@@ -1,7 +1,8 @@
 // Game modes and the results screen. Games run full screen (the tab bar is hidden).
-import { settings, wordKey, getProgress, record, logSession, MAX_BOX } from './store.js';
+import { settings, wordKey, getProgress, record, logSession, getStats, todayAnswers, MAX_BOX, MASTERED_BOX } from './store.js';
 import { state, h, fill, render, shuffle, say, speakerBtn, termBlock, readingText, answerOf, groupTitle } from './core.js';
 import { icon } from './icons.js';
+import { dayTotals, streak } from './progress.js';
 
 export const MODES = ['flash', 'quiz', 'reverse', 'listen', 'type', 'match'];
 const MATCH_PAIRS = 6;
@@ -82,6 +83,8 @@ export function startGame(items, pool) {
     i: 0,
     correct: 0,
     wrong: [],
+    mastered: new Map(), // words that reached the mastered box in this round
+    before: todayAnswers(settings.lang),
     startedAt: Date.now(),
   };
   if (session.mode === 'match') playMatch(session);
@@ -106,7 +109,10 @@ function topBar(session, label) {
 }
 
 function grade(session, item, ok) {
+  const wasMastered = getProgress(item.key).b >= MASTERED_BOX;
   record(item.key, ok);
+  if (!wasMastered && getProgress(item.key).b >= MASTERED_BOX) session.mastered.set(item.key, item);
+  else if (!ok) session.mastered.delete(item.key);
   if (ok) session.correct++;
   else if (!session.wrong.includes(item)) session.wrong.push(item);
 }
@@ -498,9 +504,35 @@ function scoreRing(pct) {
   }
   track.setAttribute('class', 'ring-track');
   bar.setAttribute('class', 'ring-bar');
-  bar.setAttribute('stroke-dasharray', `${(C * pct) / 100} ${C}`);
+  bar.setAttribute('stroke-dasharray', `0 ${C}`);
   svg.append(track, bar);
+  // Grow from empty on the next frame so the CSS transition has a start value.
+  requestAnimationFrame(() => requestAnimationFrame(() => bar.setAttribute('stroke-dasharray', `${(C * pct) / 100} ${C}`)));
   return svg;
+}
+
+// Counts a number up inside `el` (skipped when the user prefers reduced motion).
+function countUp(el, to, suffix = '') {
+  el.textContent = `${to}${suffix}`;
+  if (!to || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const t0 = performance.now();
+  const tick = (now) => {
+    const k = Math.min(1, (now - t0) / 900);
+    el.textContent = `${Math.round(to * (1 - Math.pow(1 - k, 3)))}${suffix}`;
+    if (k < 1 && el.isConnected) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+const CONFETTI_COLORS = ['#f5b84a', '#5b75f6', '#3ccf73', '#ff5c66', '#a78bfa'];
+
+// A short burst of falling pieces; pointer-events:none so it never blocks taps.
+function confetti() {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return null;
+  return h('div', { class: 'confetti', 'aria-hidden': 'true' },
+    Array.from({ length: 28 }, (_, i) => h('i', {
+      style: `left:${(i * 37) % 100}%;background:${CONFETTI_COLORS[i % CONFETTI_COLORS.length]};animation-delay:${(i % 7) * 0.08}s;--drift:${((i * 53) % 80) - 40}px`,
+    })));
 }
 
 function showResults(session) {
@@ -509,8 +541,29 @@ function showResults(session) {
   const total = session.items.length;
   const pct = total ? Math.round((session.correct / total) * 100) : 0;
   const secs = Math.round((Date.now() - session.startedAt) / 1000);
+  const prev = getStats().sessions.filter((x) => x.lang === session.lang && x.n).at(-1);
+  const prevPct = prev ? Math.round((prev.c / prev.n) * 100) : null;
   logSession({ lang: session.lang, mode: session.mode, n: total, c: session.correct, s: secs, t: Date.now() });
   const message = pct >= 90 ? t.resultGreat : pct >= 60 ? t.resultGood : t.resultKeep;
+
+  const goal = settings.dailyGoal;
+  const today = todayAnswers(session.lang);
+  const goalJustMet = goal > 0 && session.before < goal && today >= goal;
+  const days = streak(dayTotals(session.lang));
+  const diff = prevPct === null ? null : pct - prevPct;
+
+  const pctNum = h('b', {}, `${pct}%`);
+  const mastered = [...session.mastered.values()];
+  const badges = h('div', { class: 'result-badges' },
+    diff ? h('span', { class: `chip ${diff > 0 ? 'up' : 'down'}` }, `${diff > 0 ? '▲' : '▼'} ${Math.abs(diff)}% ${t.vsLast}`) : null,
+    days ? h('span', { class: 'chip' }, icon('flame', { size: 14 }), `${days} ${t.days}`) : null,
+    goal > 0 ? h('span', { class: `chip${today >= goal ? ' up' : ''}` }, icon('target', { size: 14 }), t.goalToday.replace('{n}', today).replace('{goal}', goal)) : null,
+  );
+  const masteredBox = mastered.length
+    ? h('div', { class: 'mastered-box' },
+        h('strong', {}, icon('sparkles', { size: 18 }), t.newMastered.replace('{n}', mastered.length)),
+        h('div', { class: 'mastered-words' }, mastered.slice(0, 12).map((it) => h('span', { class: 'word-chip', lang: it.lang }, it.term))))
+    : null;
 
   const reviewList = session.wrong.length
     ? h('ul', { class: 'group list' }, session.wrong.map((it) =>
@@ -528,13 +581,16 @@ function showResults(session) {
       h('span', { class: 'icon-btn-spacer' }),
     ),
     h('section', { class: 'result-hero' },
-      h('div', { class: 'ring-wrap' }, scoreRing(pct), h('div', { class: 'ring-label' }, h('b', {}, `${pct}%`), h('span', {}, t.accuracy))),
-      h('p', { class: 'result-msg' }, message),
+      goalJustMet || pct === 100 ? confetti() : null,
+      h('div', { class: 'ring-wrap' }, scoreRing(pct), h('div', { class: 'ring-label' }, pctNum, h('span', {}, t.accuracy))),
+      h('p', { class: 'result-msg' }, goalJustMet ? t.goalReached : message),
+      badges,
       h('div', { class: 'stats' },
         h('div', { class: 'stat' }, h('b', {}, `${session.correct}/${total}`), h('span', {}, t.score)),
         h('div', { class: 'stat' }, h('b', {}, `${secs} ${t.sec}`), h('span', {}, t.time)),
       ),
     ),
+    masteredBox,
     groupTitle(t.reviewWrong),
     reviewList,
     h('div', { class: 'actions stack' },
@@ -545,4 +601,5 @@ function showResults(session) {
       h('button', { class: 'btn ghost', type: 'button', onclick: exitGame }, t.done),
     ),
   ));
+  countUp(pctNum, pct, '%');
 }
