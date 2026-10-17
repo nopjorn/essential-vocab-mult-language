@@ -4,12 +4,22 @@
     "date": "2026-10-16",
     "changes": {
       "th": [
+        "เพิ่มคำศัพท์เป็นประมาณ 3,000 คำต่อภาษา (ขอบเขตใกล้เคียง Oxford 3000): อังกฤษ 3,291 คำ เกาหลี 3,216 คำ ญี่ปุ่น 3,174 คำ",
+        "แบ่งคำศัพท์เป็น 3 ระดับ: ระดับ 1 พื้นฐาน · ระดับ 2 ชีวิตประจำวัน · ระดับ 3 ต่อยอด เลือกระดับได้จากแถบเหนือรายการชุดคำศัพท์ และเลือกชุดจากหลายระดับพร้อมกันได้",
+        "ชุดคำศัพท์ใหม่ 71 หัวข้อ เช่น ผลไม้และผัก สัตว์ เสื้อผ้า การเดินทาง ที่ทำงาน สุขภาพ เทคโนโลยี เศรษฐกิจ สิ่งแวดล้อม",
+        "คำศัพท์ทั้งหมดเขียนขึ้นใหม่ ไม่ได้คัดลอกจากรายการที่มีลิขสิทธิ์ และเผยแพร่แบบ CC0 ใช้เชิงพาณิชย์ได้ฟรี",
+        "หน้าความคืบหน้าแยกชุดคำศัพท์ตามระดับ",
         "ย้ายปุ่ม \"เริ่มฝึก\" ไปไว้ตรงกลางแถบเมนูด้านล่าง เป็นปุ่มวงกลมที่เด่นกว่าเมนูอื่น กดได้จากทุกหน้า (เริ่มด้วยภาษา โหมด และชุดคำศัพท์ที่เลือกไว้ล่าสุด)",
         "เปลี่ยนชื่อแท็บ \"ฝึก\" เป็น \"หน้าหลัก\" พร้อมไอคอนบ้าน",
         "หน้าหลักแสดงสรุปใต้รายการชุดคำศัพท์ว่าเลือกไว้กี่ชุด กี่คำ และรอบละกี่ข้อ",
         "จบเกมหรือออกจากเกมแล้ว จะกลับไปหน้าที่เปิดอยู่ก่อนเริ่มเล่น"
       ],
       "en": [
+        "About 3,000 words per language (similar in scope to the Oxford 3000): English 3,291, Korean 3,216, Japanese 3,174",
+        "Words are split into 3 levels: 1 Beginner · 2 Everyday · 3 Intermediate. Pick a level above the word sets; you can choose sets from several levels at once",
+        "71 new topic sets, e.g. fruits & vegetables, animals, clothes, travel, the office, health, technology, economy, environment",
+        "All vocabulary is newly written (nothing copied from copyrighted lists) and released under CC0, free for commercial use",
+        "The Progress page groups word sets by level",
         "The Start button now sits in the middle of the bottom tab bar as a prominent round button, so you can start from any screen (with the language, mode and sets you chose last)",
         "The \"Practice\" tab is now \"Home\", with a house icon",
         "Home shows how many sets, words and questions per round you have selected, under the word sets",

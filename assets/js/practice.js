@@ -103,7 +103,7 @@ export async function renderPractice() {
     const words = vocab.sets.filter((x) => chosen.has(x.id)).reduce((n, x) => n + x.words.length, 0);
     const q = settings.mode === 'match' || settings.count === 0 ? words : Math.min(settings.count, words);
     setsFoot.textContent = chosen.size
-      ? t.setsSummary.replace('{sets}', chosen.size).replace('{words}', words).replace('{q}', q)
+      ? t.setsSummary.replace('{sets}', chosen.size).replace('{words}', words.toLocaleString()).replace('{q}', q)
       : t.pickSet;
   };
 

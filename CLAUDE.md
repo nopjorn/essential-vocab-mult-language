@@ -8,7 +8,8 @@ Project brief for Claude Code. Read this first; open other files only for the ar
 PWA with **no build step**, hosted on GitHub Pages and tuned for iPhone (Pro Max) and iPad Air in
 Safari or as a Home Screen app.
 
-- Learn: English 🇬🇧 (14 sets, 308 words), Korean 🇰🇷 (15 sets, 325), Japanese 🇯🇵 (14 sets, 318)
+- Learn: English 🇬🇧 (85 sets, 3,291 words), Korean 🇰🇷 (86 sets, 3,216), Japanese 🇯🇵 (85 sets, 3,174),
+  each in 3 levels (≈1,000 words per level)
 - Translate into: Thai (all languages); English (Korean and Japanese)
 - 6 modes: flash, quiz, reverse, listen, type, match; Leitner boxes 0–5 (box ≥ 3 = mastered)
 - Native-app style UI: bottom tab bar (Home · Progress · **Start** · Guide · Settings; Start is a raised round
