@@ -2,6 +2,16 @@
 
 <!-- Generated from data/changelog.json by `node scripts/bump-version.mjs --sync`. Do not edit by hand. -->
 
+## [1.7.1] - 2026-10-18
+
+- แก้ไอคอนในหน้าตั้งค่าที่สลับกัน: "ส่งออกความคืบหน้า" เป็นลูกศรขึ้น และ "นำเข้าความคืบหน้า" เป็นลูกศรลง
+
+<details><summary>English</summary>
+
+- Fixed swapped icons in Settings: "Export progress" now uses the up arrow and "Import progress" the down arrow
+
+</details>
+
 ## [1.7.0] - 2026-10-18
 
 - หน้าการตั้งค่าเพิ่ม "ส่งออกความคืบหน้า" เป็นไฟล์สำรอง .json และ "นำเข้าความคืบหน้า" เพื่อกู้คืนหรือย้ายไปเครื่องอื่น (นำเข้าแบบรวมข้อมูล ไม่ทับคำตอบที่ใหม่กว่า)
