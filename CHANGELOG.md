@@ -2,6 +2,18 @@
 
 <!-- Generated from data/changelog.json by `node scripts/bump-version.mjs --sync`. Do not edit by hand. -->
 
+## [1.5.0] - 2026-10-18
+
+- แตะไอคอนรายการ (☰) ที่แถวของชุดคำศัพท์ในหน้าหลักเพื่อดูคำทั้งหมดในชุด พร้อมคำอ่าน คำแปล หมายเหตุ เครื่องหมายคำที่จำได้แล้ว และปุ่มฟังเสียง
+- ปุ่ม "ฝึกชุดนี้" ในหน้ารายการคำศัพท์ เล่นเฉพาะชุดนั้นได้ทันที
+
+<details><summary>English</summary>
+
+- Tap the list icon (☰) on a word-set row on Home to see every word in the set, with reading, translation, notes, a mastered mark and a speaker button
+- "Practice this set" on the word list plays just that set right away
+
+</details>
+
 ## [1.4.0] - 2026-10-17
 
 - หน้าหลักมีการ์ด "วันนี้": วงแหวนเป้าหมายรายวัน วันเรียนต่อเนื่อง ปุ่ม "เล่นต่อ" และ "เล่นด่วน 5 คำ" สำหรับรอบสั้น ๆ
