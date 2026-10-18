@@ -89,6 +89,17 @@ export function record(key, isCorrect) {
   save(STATS_KEY, stats);
 }
 
+// "I already know this word" from the word list: moves it straight to the mastered box, or
+// back to box 0 when undone. It is not an answer, so daily stats and accuracy stay untouched.
+export function setKnown(key, known) {
+  const p = { ...getProgress(key) };
+  if (known) p.b = Math.max(p.b, MASTERED_BOX);
+  else p.b = 0;
+  p.t = Date.now();
+  progress[key] = p;
+  save(PROGRESS_KEY, progress);
+}
+
 // Answers given today in one language.
 export function todayAnswers(lang) {
   return stats.days[dayKey()]?.[lang]?.[0] || 0;

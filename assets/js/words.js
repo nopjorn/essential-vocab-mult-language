@@ -1,5 +1,5 @@
 // Word list of one set (#/words/<lang>/<setId>), opened from the list icon on a Home set row.
-import { settings, saveSettings, wordKey, getProgress, MASTERED_BOX } from './store.js';
+import { settings, saveSettings, wordKey, getProgress, setKnown, MASTERED_BOX } from './store.js';
 import { state, h, render, nameOf, loadLang, setUiLang, ensureAudio, pageHead, groupTitle, readingText, answerOf, speakerBtn, toast } from './core.js';
 import { speechSupported } from './speech.js';
 import { itemsFor, pickItems, startGame } from './game.js';
@@ -26,7 +26,9 @@ export async function renderWords(code, setId) {
     return;
   }
 
-  const mastered = set.words.filter((w) => getProgress(wordKey(code, set.id, w.term)).b >= MASTERED_BOX).length;
+  const isKnown = (w) => getProgress(wordKey(code, set.id, w.term)).b >= MASTERED_BOX;
+  const subText = () => `${set.words.length} ${t.words} · ${t.mastered} ${set.words.filter(isKnown).length}`;
+  const sub = h('p', { class: 'page-sub words-sub' }, subText());
 
   const practiceSet = () => {
     ensureAudio(); // iOS only allows speech after a tap
@@ -37,18 +39,36 @@ export async function renderWords(code, setId) {
     startGame(pickItems(items, settings.count), items);
   };
 
+  // Tap to mark a word as already known (mastered); tap again to put it back to new.
+  const knownBtn = (word) => {
+    const btn = h('button', { class: 'known-btn', type: 'button', 'aria-label': t.markKnown },
+      h('span', { class: 'check-circle', 'aria-hidden': 'true' }, icon('check', { size: 16 })));
+    const sync = () => {
+      const on = isKnown(word);
+      btn.classList.toggle('on', on);
+      btn.setAttribute('aria-pressed', String(on));
+    };
+    btn.onclick = () => {
+      setKnown(wordKey(code, set.id, word.term), !isKnown(word));
+      sync();
+      sub.textContent = subText();
+    };
+    sync();
+    return btn;
+  };
+
   render(
-    pageHead(`${set.icon} ${nameOf(set.name)}`, { back, sub: `${set.words.length} ${t.words} · ${t.mastered} ${mastered}` }),
+    pageHead(`${set.icon} ${nameOf(set.name)}`, { back }),
+    sub,
     h('div', { class: 'words-actions' },
       h('button', { class: 'btn primary', type: 'button', onclick: practiceSet }, icon('play', { size: 16, fill: true }), t.practiceThisSet)),
     groupTitle(t.wordList),
     h('ul', { class: 'group list' }, set.words.map((word) => {
-      const known = getProgress(wordKey(code, set.id, word.term)).b >= MASTERED_BOX;
       const note = word.note?.[settings.target] || word.note?.th;
       return h('li', { class: 'row word-row' },
         h('span', { class: 'rv-term' }, h('span', { lang: code }, word.term), readingText(word) ? h('small', {}, readingText(word)) : null),
         h('span', { class: 'rv-answer' }, answerOf(word), note ? h('small', { class: 'muted block' }, note) : null),
-        known ? h('span', { class: 'word-known', title: t.mastered }, icon('check', { size: 16 })) : null,
+        knownBtn(word),
         speakerBtn(word.term, { lang: code }));
     })),
   );
