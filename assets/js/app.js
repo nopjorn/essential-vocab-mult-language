@@ -1,10 +1,11 @@
 // App shell: routing, bottom tab bar, theme, version and update prompts.
-// Routes: #/ home (practice setup) · #/progress[/<lang>] · #/help[/<section>] · #/settings · #/changelog
+// Routes: #/ home (practice setup) · #/progress[/<lang>] · #/help[/<section>] · #/settings · #/changelog · #/words/<lang>/<set>
 import { settings, saveSettings, getLastVersion, setLastVersion } from './store.js';
 import { state, h, fill, render, loadIndex, setUiLang, toast } from './core.js';
 import { uiFor } from './i18n.js';
 import { renderPractice, startPractice } from './practice.js';
 import { renderProgress } from './progress.js';
+import { renderWords } from './words.js';
 import { renderSettings } from './settings.js';
 import { renderHelp, renderChangelog } from './info.js';
 import { setExitHandler, onKeys } from './game.js';
@@ -41,7 +42,7 @@ function route() {
   document.body.classList.remove('in-game');
   setUiLang();
   const path = location.hash.replace(/^#\/?/, '');
-  const [page = '', arg] = path.split('/');
+  const [page = '', arg, arg2] = path.split('/');
   const tab = page === 'changelog' ? 'settings' : TABS.some(([p]) => p === page) ? page : '';
   renderTabBar(tab);
   document.getElementById('screen').dataset.page = tab || 'practice';
@@ -49,6 +50,7 @@ function route() {
   if (page === 'help') return renderHelp(arg);
   if (page === 'settings') return renderSettings();
   if (page === 'changelog') return renderChangelog();
+  if (page === 'words') return renderWords(arg, arg2);
   return renderPractice();
 }
 

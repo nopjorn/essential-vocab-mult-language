@@ -25,6 +25,7 @@ const CORE = [
   'assets/js/speech.js',
   'assets/js/store.js',
   'assets/js/theme.js',
+  'assets/js/words.js',
   'assets/icons/apple-touch-icon.png',
   'assets/icons/favicon-64.png',
   'assets/icons/icon-192.png',

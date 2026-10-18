@@ -43,7 +43,7 @@ sw.js                   offline cache; cache name = version + build; CORE file l
 manifest.webmanifest    PWA manifest (icons, maskable icon, shortcuts)
 assets/css/style.css    all styles; tokens on :root, dark tokens for data-theme / prefers-color-scheme
 assets/js/
-  app.js        router (#/, #/progress[/lang], #/help[/section], #/settings, #/changelog), tab bar + Start button,
+  app.js        router (#/, #/progress[/lang], #/help[/section], #/settings, #/changelog, #/words/<lang>/<set>), tab bar + Start button,
                 update toasts, SW; leaving a game re-routes to the page it was started from
   core.js       shared state (index, ui strings, navId), h() DOM helper, fill/render, loaders, pageHead/groupTitle,
                 speaker/term widgets, toast
@@ -54,6 +54,7 @@ assets/js/
                 daily goal, per-language reset, about (version, what's new, guide, install)
   game.js       item building, weighted picking, distractors, all 6 modes (swipe flashcards), results screen (animated ring, newly mastered words, vs last game, goal progress, confetti)
   icons.js      hand-drawn SVG line icons (icon(name)), MODE_ICON map
+  words.js      word list of one set (#/words/<lang>/<set>, opened from the list icon on a Home set row; Practice this set)
   progress.js   progress overview + per-language detail (tiles, stacked bars, 14-day chart, weak words)
   info.js       guide and changelog pages
   guide.js      guide content {th, en}

@@ -176,6 +176,13 @@ export async function renderPractice() {
         h('span', { class: 'row-sub' }, `${total} ${t.words} · ${t.mastered} ${mastered}`),
         h('span', { class: 'meter thin' }, h('span', { class: 'meter-fill', style: `width:${total ? (mastered / total) * 100 : 0}%` })),
       ),
+      // Inside the label, so stop the tap from toggling the checkbox.
+      h('a', {
+        class: 'set-words',
+        href: `#/words/${code}/${set.id}`,
+        'aria-label': `${t.wordList}: ${nameOf(set.name)}`,
+        onclick: (e) => e.stopPropagation(),
+      }, icon('list', { size: 20 })),
       h('span', { class: 'check-circle', 'aria-hidden': 'true' }, icon('check', { size: 16 })),
     ));
   }
