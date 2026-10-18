@@ -195,10 +195,10 @@ export async function renderSettings() {
     groupTitle(t.groupData),
     h('div', { class: 'group' },
       h('button', { class: 'row', type: 'button', onclick: () => exportProgress(t) },
-        rowIcon('download', 'blue'), rowText(t.exportData, t.exportDataSub),
+        rowIcon('upload', 'blue'), rowText(t.exportData, t.exportDataSub),
         icon('chevronRight', { size: 18, cls: 'chev' })),
       h('label', { class: 'row' },
-        rowIcon('upload', 'green'), rowText(t.importData, t.importDataSub),
+        rowIcon('download', 'green'), rowText(t.importData, t.importDataSub),
         icon('chevronRight', { size: 18, cls: 'chev' }),
         h('input', {
           type: 'file',

@@ -1,5 +1,17 @@
 [
   {
+    "version": "1.7.1",
+    "date": "2026-10-18",
+    "changes": {
+      "th": [
+        "แก้ไอคอนในหน้าตั้งค่าที่สลับกัน: \"ส่งออกความคืบหน้า\" เป็นลูกศรขึ้น และ \"นำเข้าความคืบหน้า\" เป็นลูกศรลง"
+      ],
+      "en": [
+        "Fixed swapped icons in Settings: \"Export progress\" now uses the up arrow and \"Import progress\" the down arrow"
+      ]
+    }
+  },
+  {
     "version": "1.7.0",
     "date": "2026-10-18",
     "changes": {
