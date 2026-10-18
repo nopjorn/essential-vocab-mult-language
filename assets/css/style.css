@@ -624,9 +624,11 @@ input:checked + .switch::after { transform: translateX(20px); }
   flex: none;
 }
 .set-words:active { background: var(--fill); }
+.words-sub { margin: -6px 4px 12px; }
 .words-actions { margin: 0 0 6px; }
 .word-row { gap: 10px; }
-.word-known { display: grid; place-items: center; color: var(--good); flex: none; }
+.known-btn { display: grid; place-items: center; width: 44px; height: 44px; margin: -6px 0; padding: 0; background: none; border: 0; cursor: pointer; flex: none; }
+.known-btn.on .check-circle { background: var(--good); border-color: var(--good); color: #fff; }
 .check-circle {
   display: grid;
   place-items: center;

@@ -2,6 +2,16 @@
 
 <!-- Generated from data/changelog.json by `node scripts/bump-version.mjs --sync`. Do not edit by hand. -->
 
+## [1.6.0] - 2026-10-18
+
+- ในหน้ารายการคำศัพท์ของชุด แตะวงกลมท้ายคำเพื่อทำเครื่องหมายว่า "รู้คำนี้แล้ว" ได้ทันที คำนั้นจะนับเป็นจำได้แล้ว (แตะอีกครั้งเพื่อยกเลิก)
+
+<details><summary>English</summary>
+
+- On a set's word list, tap the circle at the end of a word to mark it "I know this word" right away; it counts as mastered (tap again to undo)
+
+</details>
+
 ## [1.5.0] - 2026-10-18
 
 - แตะไอคอนรายการ (☰) ที่แถวของชุดคำศัพท์ในหน้าหลักเพื่อดูคำทั้งหมดในชุด พร้อมคำอ่าน คำแปล หมายเหตุ เครื่องหมายคำที่จำได้แล้ว และปุ่มฟังเสียง

@@ -1,5 +1,17 @@
 [
   {
+    "version": "1.6.0",
+    "date": "2026-10-18",
+    "changes": {
+      "th": [
+        "ในหน้ารายการคำศัพท์ของชุด แตะวงกลมท้ายคำเพื่อทำเครื่องหมายว่า \"รู้คำนี้แล้ว\" ได้ทันที คำนั้นจะนับเป็นจำได้แล้ว (แตะอีกครั้งเพื่อยกเลิก)"
+      ],
+      "en": [
+        "On a set's word list, tap the circle at the end of a word to mark it \"I know this word\" right away; it counts as mastered (tap again to undo)"
+      ]
+    }
+  },
+  {
     "version": "1.5.0",
     "date": "2026-10-18",
     "changes": {
