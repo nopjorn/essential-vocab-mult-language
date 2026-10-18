@@ -2,6 +2,32 @@
 
 <!-- Generated from data/changelog.json by `node scripts/bump-version.mjs --sync`. Do not edit by hand. -->
 
+## [1.8.0] - 2026-10-18
+
+- หน้าต้อนรับเมื่อเปิดแอปครั้งแรก เลือกภาษา ระดับ และเป้าหมายรายวันได้ใน 3 ขั้น
+- โหมดใหม่ "ผสมทุกโหมด" สลับโหมดให้ทุกข้อ ทั้งเลือก ฟัง และพิมพ์ (ตั้งเป็นโหมดแนะนำ)
+- ตัวนับคอมโบเมื่อตอบถูกติดกัน พร้อมเอฟเฟกต์ทุก 5 ข้อ และเสียงประกอบตอนตอบถูก/ผิด (ปิดได้ในหน้าตั้งค่า)
+- ปุ่มคำตอบเด้งเมื่อตอบถูกและสั่นเมื่อตอบผิด บน iPhone ย้ายตัวเลือกลงไปด้านล่างจอให้กดด้วยนิ้วโป้งได้ง่าย
+- แฟลชการ์ดมีปุ่มย้อนการ์ดใบก่อน เมื่อปัดผิด
+- โหมดพิมพ์คำศัพท์มีปุ่ม "คำใบ้" บอกตัวอักษรแรกและจำนวนตัวอักษร
+- โหมดจับคู่มีนาฬิกาจับเวลาและสถิติเวลาดีที่สุด
+- ตราสะสม (เรียนต่อเนื่อง จำได้กี่คำ จำครบกี่ชุด คอมโบ) ในหน้าความคืบหน้า และแจ้งในหน้าสรุปผลเมื่อได้ตราใหม่ ชุดที่จำครบมีมงกุฎสีทอง
+- หน้าหลัก: รวมสรุปความคืบหน้าไว้ในการ์ดวันนี้ เพิ่มการ์ด "แนะนำต่อไป" และช่องค้นหาชุดหรือคำศัพท์
+
+<details><summary>English</summary>
+
+- A welcome screen on first launch: pick a language, level and daily goal in 3 steps
+- New "Mixed" mode switches modes every question: pick, listen and type (now the suggested mode)
+- A combo counter for correct answers in a row with a burst every 5, plus sound effects for right and wrong answers (can be turned off in Settings)
+- Answer buttons pop when right and shake when wrong; on iPhone the options now sit at the bottom of the screen within thumb reach
+- Flashcards have an undo button for a wrong swipe
+- Type mode has a "Hint" button that shows the first letter and the word length
+- Match mode has a round timer and a best-time record
+- Badges (streaks, words mastered, sets completed, combos) on the Progress page, announced on the results screen when earned; fully mastered sets get a gold crown
+- Home: progress summary merged into the Today card, a new "Up next" card and a search box for sets and words
+
+</details>
+
 ## [1.7.1] - 2026-10-18
 
 - แก้ไอคอนในหน้าตั้งค่าที่สลับกัน: "ส่งออกความคืบหน้า" เป็นลูกศรขึ้น และ "นำเข้าความคืบหน้า" เป็นลูกศรลง

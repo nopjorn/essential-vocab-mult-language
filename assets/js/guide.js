@@ -5,11 +5,14 @@ export const GUIDE = {
     {
       id: 'start', icon: 'play', color: 'blue', title: 'เริ่มต้นใช้งาน',
       items: [
+        'เปิดแอปครั้งแรกจะมีหน้าต้อนรับ 3 ขั้น ให้เลือกภาษาที่จะเรียน ระดับเริ่มต้น และเป้าหมายรายวัน (แตะ "ข้าม" เพื่อใช้ค่าเริ่มต้น)',
         'แถบเมนูด้านล่างมี: หน้าหลัก · ความคืบหน้า · ปุ่มเริ่มฝึก (วงกลมตรงกลาง) · คู่มือ · ตั้งค่า',
         'ในหน้าหลัก เลือกภาษาที่จะเรียน (อังกฤษ เกาหลี ญี่ปุ่น) จากแถบด้านบน',
-        'การ์ด "วันนี้" ในหน้าหลักแสดงวงแหวนเป้าหมายรายวัน และวันเรียนต่อเนื่อง แตะ "เล่นต่อ" เพื่อเริ่มรอบปกติ หรือ "เล่นด่วน 5 คำ" สำหรับรอบสั้น ๆ ไม่กี่นาที',
+        'การ์ด "วันนี้" ในหน้าหลักแสดงวงแหวนเป้าหมายรายวัน และวันเรียนต่อเนื่อง แตะ "เล่นต่อ" เพื่อเริ่มรอบปกติ หรือ "เล่นด่วน 5 คำ" สำหรับรอบสั้น ๆ ไม่กี่นาที แถบล่างของการ์ดบอกจำนวนคำที่จำได้และความแม่นยำ แตะเพื่อดูรายละเอียด',
+        'การ์ด "แนะนำต่อไป" เลือกชุดคำศัพท์ที่ควรเรียนต่อให้อัตโนมัติ แตะเพื่อฝึกชุดนั้นได้ทันที (ไม่เปลี่ยนชุดที่เลือกไว้)',
         'คำศัพท์แต่ละภาษามีประมาณ 3,000 คำ แบ่งเป็น 3 ระดับ: ระดับ 1 พื้นฐาน · ระดับ 2 ชีวิตประจำวัน · ระดับ 3 ต่อยอด แตะแถบระดับเหนือรายการชุดคำศัพท์เพื่อสลับ (เลือกชุดจากหลายระดับพร้อมกันได้)',
-        'เลือกโหมดเกม แล้วแตะชุดคำศัพท์ที่อยากฝึก (เลือกได้หลายชุด เครื่องหมายถูกด้านขวาคือชุดที่เลือกแล้ว)',
+        'เลือกโหมดเกม แล้วแตะชุดคำศัพท์ที่อยากฝึก (เลือกได้หลายชุด เครื่องหมายถูกด้านขวาคือชุดที่เลือกแล้ว) ชุดที่จำได้ครบทุกคำจะมีมงกุฎสีทอง',
+        'ช่องค้นหาเหนือรายการชุดคำศัพท์ ค้นได้ทั้งชื่อชุดและคำศัพท์ข้างใน (เช่น พิมพ์ "แมว" เพื่อหาชุดที่มีคำนี้) ค้นทุกระดับพร้อมกัน',
         'แตะไอคอนรายการ (☰) ที่ท้ายแถวของชุดคำศัพท์เพื่อดูคำทั้งหมดในชุด พร้อมคำอ่าน คำแปล และปุ่มฟังเสียง แตะวงกลมที่ท้ายคำเพื่อทำเครื่องหมายว่า "รู้คำนี้แล้ว" (แตะอีกครั้งเพื่อยกเลิก) และแตะ "ฝึกชุดนี้" เพื่อเล่นเฉพาะชุดนั้น',
         'แตะปุ่ม "เริ่มฝึก" ตรงกลางแถบเมนูด้านล่าง กดได้จากทุกหน้า แอปจะเริ่มด้วยภาษา โหมด และชุดคำศัพท์ที่เลือกไว้ล่าสุด',
         'เกมเปิดเต็มจอ แตะ ✕ มุมซ้ายบนเพื่อออก เมื่อจบเกมจะกลับไปหน้าที่เปิดอยู่ก่อนเริ่ม',
@@ -19,12 +22,15 @@ export const GUIDE = {
     {
       id: 'modes', icon: 'flash', color: 'indigo', title: 'โหมดเกม',
       items: [
-        { b: 'แฟลชการ์ด', text: 'แตะการ์ดเพื่อพลิกดูความหมาย แล้วปัดขวาถ้าจำได้ หรือปัดซ้ายถ้ายังจำไม่ได้ (หรือแตะปุ่ม ✓ / ✕ ใต้การ์ด)' },
+        { b: 'ผสมทุกโหมด (แนะนำ)', text: 'สลับโหมดให้ทุกข้อ ทั้งเลือกความหมาย เลือกคำศัพท์ ฟังแล้วตอบ และพิมพ์คำศัพท์ (คำที่เริ่มจำได้แล้วจึงจะมีโหมดพิมพ์) ป้ายเหนือคำถามบอกว่าข้อนั้นเป็นโหมดไหน' },
+        { b: 'แฟลชการ์ด', text: 'แตะการ์ดเพื่อพลิกดูความหมาย แล้วปัดขวาถ้าจำได้ หรือปัดซ้ายถ้ายังจำไม่ได้ (หรือแตะปุ่ม ✓ / ✕ ใต้การ์ด) ถ้าปัดผิด แตะปุ่มย้อน ↶ มุมขวาบนเพื่อย้อนการ์ดใบก่อน' },
         { b: 'เลือกความหมาย', text: 'ดูคำศัพท์ แล้วเลือกคำแปลที่ถูกจาก 4 ตัวเลือก' },
         { b: 'เลือกคำศัพท์', text: 'ดูคำแปล แล้วเลือกคำศัพท์ที่ถูก' },
         { b: 'ฟังแล้วตอบ', text: 'ฟังเสียง แล้วเลือกคำแปล (แตะลำโพงเพื่อฟังซ้ำ)' },
-        { b: 'พิมพ์คำศัพท์', text: 'ดูคำแปล แล้วพิมพ์คำศัพท์ ภาษาเกาหลีพิมพ์ฮันกึลหรือโรมันได้ ภาษาญี่ปุ่นพิมพ์คันจิ คานะ หรือโรมาจิได้ (เช่น ohayou หรือ ohayo)' },
-        { b: 'จับคู่', text: 'แตะคำศัพท์ทางซ้าย แล้วแตะคำแปลทางขวาให้ตรงกัน รอบละ 6 คู่ ถ้าจับผิดคำนั้นจะนับว่ายังจำไม่ได้' },
+        { b: 'พิมพ์คำศัพท์', text: 'ดูคำแปล แล้วพิมพ์คำศัพท์ ภาษาเกาหลีพิมพ์ฮันกึลหรือโรมันได้ ภาษาญี่ปุ่นพิมพ์คันจิ คานะ หรือโรมาจิได้ (เช่น ohayou หรือ ohayo) แตะ "คำใบ้" เพื่อดูตัวอักษรแรกและจำนวนตัวอักษร' },
+        { b: 'จับคู่', text: 'แตะคำศัพท์ทางซ้าย แล้วแตะคำแปลทางขวาให้ตรงกัน รอบละ 6 คู่ ถ้าจับผิดคำนั้นจะนับว่ายังจำไม่ได้ มีนาฬิกาจับเวลาแต่ละรอบ ทำเวลาดีกว่าสถิติเดิมจะขึ้น "สถิติใหม่!"' },
+        { b: 'คอมโบ', text: 'ตอบถูกติดกันตั้งแต่ 2 ข้อจะมีตัวนับคอมโบ 🔥 ที่แถบด้านบน ทุก 5 ข้อมีเอฟเฟกต์พิเศษ ตอบผิดคอมโบจะเริ่มใหม่' },
+        { b: 'เสียงประกอบ', text: 'มีเสียงเมื่อตอบถูก ตอบผิด และทำคอมโบ ปิดได้ที่ ตั้งค่า › เสียงประกอบ' },
       ],
     },
     {
@@ -34,15 +40,16 @@ export const GUIDE = {
         'คำที่อยู่ระดับ 3 ขึ้นไปนับว่า "จำได้แล้ว"',
         'เกมจะสุ่มคำที่ยังไม่เคยเห็นและคำที่ยังจำไม่ได้มาให้บ่อยกว่า',
         'จบเกมแล้วแตะ "ฝึกคำที่ผิดอีกครั้ง" เพื่อทบทวนเฉพาะคำที่พลาด',
-        'หน้าสรุปผลบอกคำที่เพิ่งจำได้ เทียบความแม่นยำกับรอบก่อน และความคืบหน้าของเป้าหมายรายวัน',
+        'หน้าสรุปผลบอกคำที่เพิ่งจำได้ เทียบความแม่นยำกับรอบก่อน ความคืบหน้าของเป้าหมายรายวัน คอมโบสูงสุด สถิติใหม่ และตราที่เพิ่งได้รับ',
       ],
     },
     {
       id: 'progress', icon: 'progress', color: 'orange', title: 'ดูความคืบหน้า',
       items: [
-        'การ์ดสรุปในหน้าหลักบอกจำนวนคำที่จำได้และความแม่นยำของภาษาที่เลือก แตะเพื่อดูรายละเอียด',
+        'แถบล่างของการ์ด "วันนี้" ในหน้าหลักบอกจำนวนคำที่จำได้และความแม่นยำของภาษาที่เลือก แตะเพื่อดูรายละเอียด',
         'แท็บ "ความคืบหน้า" แสดงภาพรวมทุกภาษา และกราฟจำนวนคำตอบ 14 วันล่าสุด (แตะแท่งกราฟเพื่อดูตัวเลข)',
         'เลือกภาษาด้านบนเพื่อดูความคืบหน้าแยกชุด (จัดกลุ่มตามระดับ) คำที่ผิดบ่อย (แตะ "ฝึกคำเหล่านี้" ได้ทันที) และประวัติการเล่น',
+        'ตราสะสม: เรียนต่อเนื่อง 3/7/30 วัน จำได้ 50/200/500/1000 คำ จำครบ 1/10 ชุด และคอมโบ ×10/×25 ตราที่ยังไม่ได้จะเป็นสีเทาพร้อมบอกความคืบหน้า',
       ],
     },
     {
@@ -51,7 +58,7 @@ export const GUIDE = {
         'ภาษาคำแปลและภาษาของแอป: ไทย หรือ English',
         'จำนวนข้อต่อรอบ: 10, 20, 30 หรือทั้งหมด',
         'เป้าหมายรายวัน: 10, 20, 50 หรือ 100 คำตอบต่อวัน (ค่าเริ่มต้น 20)',
-        'แสดงคำอ่าน (คานะและอักษรโรมัน) และออกเสียงอัตโนมัติ',
+        'แสดงคำอ่าน (คานะและอักษรโรมัน) ออกเสียงอัตโนมัติ และเสียงประกอบ (เสียงตอบถูก/ผิด/คอมโบ)',
         'ธีม: ตามระบบ (ค่าเริ่มต้น) สว่าง หรือ มืด',
         'ส่งออกความคืบหน้าเป็นไฟล์สำรอง .json และนำเข้ากลับ (รวมกับข้อมูลในเครื่อง ไม่ทับคำตอบที่ใหม่กว่า) ใช้ย้ายเครื่องได้',
         'ล้างความคืบหน้าแยกตามภาษา และดูเวอร์ชันกับรายการ "มีอะไรใหม่"',
@@ -80,6 +87,7 @@ export const GUIDE = {
         { b: '1–4', text: 'เลือกคำตอบ' },
         { b: 'Enter / Space', text: 'ไปข้อต่อไป หรือพลิกการ์ด' },
         { b: '← / →', text: 'ในโหมดแฟลชการ์ด ใช้แทนการปัดซ้าย (ยังจำไม่ได้) และปัดขวา (จำได้)' },
+        { b: 'Z / Backspace', text: 'ในโหมดแฟลชการ์ด ย้อนการ์ดใบก่อน' },
       ],
     },
     {
@@ -96,11 +104,14 @@ export const GUIDE = {
     {
       id: 'start', icon: 'play', color: 'blue', title: 'Getting started',
       items: [
+        'The first time you open the app, a 3-step welcome asks for the language to learn, a starting level and a daily goal (tap "Skip" to use the defaults)',
         'The tab bar at the bottom has: Home · Progress · the Start button (round, in the middle) · Guide · Settings',
         'On Home, choose the language to learn (English, Korean, Japanese) at the top',
-        'The "Today" card on Home shows your daily goal ring and day streak. Tap "Continue" for a normal round, or "Quick 5" for a short round of a few minutes',
+        'The "Today" card on Home shows your daily goal ring and day streak. Tap "Continue" for a normal round, or "Quick 5" for a short round of a few minutes. Its bottom row shows words mastered and accuracy; tap it for details',
+        'The "Up next" card picks the word set to learn next for you; tap it to practice that set right away (your selection stays as it is)',
         'Each language has about 3,000 words in 3 levels: 1 Beginner · 2 Everyday · 3 Intermediate. Switch levels with the bar above the word sets (you can pick sets from several levels at once)',
-        'Choose a game mode, then tap the word sets you want (several at once; a check mark means selected)',
+        'Choose a game mode, then tap the word sets you want (several at once; a check mark means selected). Fully mastered sets wear a gold crown',
+        'The search box above the word sets finds set names and the words inside them (e.g. type "cat" to find the set that has it), across all levels',
         'Tap the list icon (☰) at the end of a word-set row to see every word in it, with reading, translation and a speaker button. Tap the circle at the end of a word to mark it "I know this word" (tap again to undo). Tap "Practice this set" to play only that set',
         'Tap "Start" in the middle of the tab bar, from any screen. It uses the language, mode and sets you chose last',
         'The game opens full screen; tap ✕ at the top left to leave. When it ends you go back to the screen you started from',
@@ -110,12 +121,15 @@ export const GUIDE = {
     {
       id: 'modes', icon: 'flash', color: 'indigo', title: 'Game modes',
       items: [
-        { b: 'Flashcards', text: 'Tap the card to flip it, then swipe right if you knew it or left if not (or tap ✓ / ✕ below the card)' },
+        { b: 'Mixed (suggested)', text: 'A different mode every question: pick the meaning, pick the word, listen, and type (typing only for words you are starting to know). A label above the question shows its mode' },
+        { b: 'Flashcards', text: 'Tap the card to flip it, then swipe right if you knew it or left if not (or tap ✓ / ✕ below the card). Swiped the wrong way? Tap undo ↶ at the top right to bring back the last card' },
         { b: 'Pick the meaning', text: 'See the word, choose its translation from 4 options' },
         { b: 'Pick the word', text: 'See the translation, choose the word' },
         { b: 'Listen & answer', text: 'Listen, then choose the translation (tap the speaker to replay)' },
-        { b: 'Type the word', text: 'See the translation, type the word. Korean accepts Hangul or romanization; Japanese accepts kanji, kana or romaji (e.g. ohayou or ohayo)' },
-        { b: 'Match pairs', text: 'Tap a word on the left, then its translation on the right. 6 pairs per round; a wrong match counts the word as not yet learned' },
+        { b: 'Type the word', text: 'See the translation, type the word. Korean accepts Hangul or romanization; Japanese accepts kanji, kana or romaji (e.g. ohayou or ohayo). Tap "Hint" to see the first letter and the word length' },
+        { b: 'Match pairs', text: 'Tap a word on the left, then its translation on the right. 6 pairs per round; a wrong match counts the word as not yet learned. Each round is timed; beat your best time for a "New record!"' },
+        { b: 'Combo', text: 'Two or more correct answers in a row show a 🔥 combo counter at the top, with a burst every 5. A wrong answer starts it over' },
+        { b: 'Sound effects', text: 'Sounds play for right and wrong answers and combos. Turn them off in Settings › Sound effects' },
       ],
     },
     {
@@ -125,15 +139,16 @@ export const GUIDE = {
         'Words at level 3 or higher count as "mastered"',
         'New and weak words come up more often',
         'After a game, tap "Practice mistakes" to review only the words you missed',
-        'The results screen shows newly mastered words, your accuracy compared with the last game, and daily-goal progress',
+        'The results screen shows newly mastered words, your accuracy compared with the last game, daily-goal progress, your best combo, new records and newly earned badges',
       ],
     },
     {
       id: 'progress', icon: 'progress', color: 'orange', title: 'Tracking progress',
       items: [
-        'The summary card on Home shows words mastered and accuracy for the chosen language; tap it for details',
+        'The bottom row of the "Today" card on Home shows words mastered and accuracy for the chosen language; tap it for details',
         'The Progress tab shows all languages and answers over the last 14 days (tap a bar for its numbers)',
         'Pick a language at the top for per-set progress (grouped by level), most-missed words ("Practice these" in one tap) and recent games',
+        'Badges: 3/7/30-day streaks, 50/200/500/1000 words mastered, 1/10 sets completed and ×10/×25 combos. Badges not yet earned are grey and show how far along you are',
       ],
     },
     {
@@ -142,7 +157,7 @@ export const GUIDE = {
         'Translation & app language: Thai or English',
         'Questions per round: 10, 20, 30 or all',
         'Daily goal: 10, 20, 50 or 100 answers per day (default 20)',
-        'Show reading (kana and romanization) and auto pronounce',
+        'Show reading (kana and romanization), auto pronounce and sound effects (right/wrong/combo sounds)',
         'Theme: System (default), Light or Dark',
         'Export your progress to a .json backup and import it back (merged with this device, never overwriting newer answers), handy for switching devices',
         'Reset progress per language, and see the version and "What\'s new"',
@@ -171,6 +186,7 @@ export const GUIDE = {
         { b: '1–4', text: 'choose an answer' },
         { b: 'Enter / Space', text: 'next question or flip the card' },
         { b: '← / →', text: 'flashcards: same as swiping left (not yet) / right (got it)' },
+        { b: 'Z / Backspace', text: 'flashcards: undo the last card' },
       ],
     },
     {

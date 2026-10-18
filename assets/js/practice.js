@@ -41,6 +41,24 @@ export async function startPractice({ count = settings.count } = {}) {
   startGame(pickItems(items, count), items);
 }
 
+// Plays one set on its own without changing the selection (recommended card, word list).
+export function playSet(vocab, setId) {
+  ensureAudio(); // iOS only allows speech after a tap
+  settings.lang = vocab.code;
+  if (settings.mode === 'listen' && !speechSupported) settings.mode = 'quiz';
+  saveSettings();
+  const items = itemsFor(vocab, [setId]);
+  startGame(pickItems(items, settings.count), items);
+}
+
+// Next set on the learning path: the first unfinished set already started, else the first
+// unfinished one, looking at the shown level first.
+function nextSet(info, level) {
+  const open = info.filter((x) => x.mastered < x.total);
+  const order = [...open.filter((x) => levelOf(x.set) === level), ...open.filter((x) => levelOf(x.set) !== level)];
+  return order.find((x) => x.seen > 0) || order[0] || null;
+}
+
 export async function renderPractice() {
   setUiLang();
   const t = state.t;
@@ -83,19 +101,15 @@ export async function renderPractice() {
     }),
   );
 
-  // ---- progress summary for this language ----
+  // ---- progress summary for this language (footer of the Today card) ----
   const s = langSummary(vocab);
   const answered = s.c + s.w;
-  const summary = h('a', { class: 'summary', href: `#/progress/${code}` },
-    h('div', { class: 'summary-main' },
-      h('span', { class: 'summary-label' }, t.mastered),
-      h('div', { class: 'summary-num' }, h('b', {}, s.mastered), h('span', {}, ` / ${s.total.toLocaleString()} ${t.words}`)),
-      h('div', { class: 'meter' }, h('span', { class: 'meter-fill', style: `width:${s.total ? (s.mastered / s.total) * 100 : 0}%` })),
-    ),
-    h('div', { class: 'summary-side' },
-      h('span', { class: 'chip-stat', title: t.accuracy }, icon('target', { size: 16 }), answered ? `${Math.round((s.c / answered) * 100)}%` : '–'),
-    ),
-    h('span', { class: 'summary-chev' }, icon('chevronRight', { size: 20 })),
+  const summary = h('a', { class: 'today-foot', href: `#/progress/${code}` },
+    h('span', { class: 'today-foot-text' },
+      h('span', {}, `${t.mastered} `, h('b', {}, s.mastered.toLocaleString()), ` / ${s.total.toLocaleString()} ${t.words}`),
+      h('span', { class: 'meter' }, h('span', { class: 'meter-fill', style: `width:${s.total ? (s.mastered / s.total) * 100 : 0}%` }))),
+    h('span', { class: 'chip-stat', title: t.accuracy }, icon('target', { size: 15 }), answered ? `${Math.round((s.c / answered) * 100)}%` : '–'),
+    icon('chevronRight', { size: 18, cls: 'chev' }),
   );
 
   // ---- today: daily goal ring, streak and one-tap start ----
@@ -112,6 +126,7 @@ export async function renderPractice() {
     h('div', { class: 'today-actions' },
       h('button', { class: 'btn primary', type: 'button', onclick: () => startPractice() }, icon('play', { size: 16, fill: true }), t.continueBtn),
       h('button', { class: 'btn', type: 'button', onclick: () => startPractice({ count: QUICK_COUNT }) }, icon('clock', { size: 16 }), t.quickN.replace('{n}', QUICK_COUNT))),
+    summary,
   );
 
   // ---- what Start will play (the button itself is in the tab bar) ----
@@ -145,8 +160,11 @@ export async function renderPractice() {
       },
     },
     h('span', { class: 'mode-ic' }, icon(MODE_ICON[m], { size: 26 })),
-    h('span', { class: 'mode-name' }, t.modes[m][0])),
+    m === 'mix'
+      ? h('span', { class: 'mode-text' }, h('span', { class: 'mode-name' }, t.modes[m][0], h('span', { class: 'mini-badge' }, t.recommended)), h('span', { class: 'mode-sub' }, t.modes[m][1]))
+      : h('span', { class: 'mode-name' }, t.modes[m][0])),
   );
+  modeTiles[0].classList.add('mode-mix');
 
   // ---- word sets, one level at a time ----
   const levels = [...new Set(vocab.sets.map(levelOf))].sort();
@@ -154,10 +172,21 @@ export async function renderPractice() {
   if (!levels.includes(level)) level = levelOf(vocab.sets.find((x) => chosen.has(x.id)) || vocab.sets[0]);
 
   const rowsByLevel = new Map(levels.map((lv) => [lv, []]));
+  const allRows = [];
+  const hay = new Map(); // row → lowercase set names, terms and translations, for search
+  const info = [];
   for (const set of vocab.sets) {
     const total = set.words.length;
-    const mastered = set.words.filter((w) => getProgress(wordKey(code, set.id, w.term)).b >= MASTERED_BOX).length;
-    rowsByLevel.get(levelOf(set)).push(h('label', { class: 'row set-row' },
+    let mastered = 0;
+    let seen = 0;
+    for (const w of set.words) {
+      const p = getProgress(wordKey(code, set.id, w.term));
+      if (p.b >= MASTERED_BOX) mastered++;
+      if (p.t) seen++;
+    }
+    info.push({ set, total, mastered, seen });
+    const complete = mastered === total;
+    const row = h('label', { class: `row set-row${complete ? ' complete' : ''}` },
       h('input', {
         type: 'checkbox',
         class: 'sr-only',
@@ -170,10 +199,11 @@ export async function renderPractice() {
           refreshFoot();
         },
       }),
-      h('span', { class: 'set-ic', 'aria-hidden': 'true' }, set.icon),
+      h('span', { class: 'set-ic', 'aria-hidden': 'true' }, set.icon,
+        complete ? h('span', { class: 'set-crown' }, icon('crown', { size: 12 })) : null),
       h('span', { class: 'row-text' },
         h('span', { class: 'row-label' }, nameOf(set.name)),
-        h('span', { class: 'row-sub' }, `${total} ${t.words} · ${t.mastered} ${mastered}`),
+        h('span', { class: 'row-sub' }, complete ? `${total} ${t.words} · ${t.setComplete}` : `${total} ${t.words} · ${t.mastered} ${mastered}`),
         h('span', { class: 'meter thin' }, h('span', { class: 'meter-fill', style: `width:${total ? (mastered / total) * 100 : 0}%` })),
       ),
       // Inside the label, so stop the tap from toggling the checkbox.
@@ -184,19 +214,45 @@ export async function renderPractice() {
         onclick: (e) => e.stopPropagation(),
       }, icon('list', { size: 20 })),
       h('span', { class: 'check-circle', 'aria-hidden': 'true' }, icon('check', { size: 16 })),
-    ));
+    );
+    rowsByLevel.get(levelOf(set)).push(row);
+    allRows.push(row);
+    hay.set(row, [set.name.th, set.name.en, ...set.words.flatMap((w) => [w.term, w.reading, w.roman, ...Object.values(w.tr)])]
+      .filter(Boolean).join('\n').toLowerCase());
   }
 
   const setsList = h('div', { class: 'group list sets-list' });
   const levelInfo = h('p', { class: 'level-info' });
+  // Search matches set names and the words inside them, across all levels.
+  const search = h('input', {
+    type: 'search',
+    class: 'set-search',
+    placeholder: t.searchSets,
+    'aria-label': t.searchSets,
+    enterkeyhint: 'search',
+    autocomplete: 'off',
+    autocorrect: 'off',
+    spellcheck: 'false',
+    oninput: () => showLevel(),
+  });
+  let visible = [];
   const showLevel = () => {
+    const q = search.value.trim().toLowerCase();
+    levelSeg?.classList.toggle('dim', !!q);
+    if (q) {
+      visible = allRows.filter((row) => hay.get(row).includes(q));
+      levelInfo.textContent = t.searchFound.replace('{n}', visible.length);
+      fill(setsList, visible.length ? visible : h('p', { class: 'empty' }, t.searchNone));
+      return;
+    }
     const sets = vocab.sets.filter((x) => levelOf(x) === level);
     const words = sets.reduce((n, x) => n + x.words.length, 0);
     levelInfo.textContent = t.levelInfo
       .replace('{name}', t.levelNames[level])
       .replace('{sets}', sets.length)
       .replace('{words}', words.toLocaleString());
-    fill(setsList, rowsByLevel.get(level));
+    visible = rowsByLevel.get(level);
+    fill(setsList, visible);
   };
   const levelSeg = levels.length > 1
     ? h('div', { class: 'segmented level-seg', role: 'radiogroup', 'aria-label': t.level },
@@ -211,15 +267,16 @@ export async function renderPractice() {
                 level = lv;
                 settings.level[code] = lv;
                 saveSettings();
+                search.value = '';
                 showLevel();
               },
             }),
             h('span', {}, t.levelN.replace('{n}', lv)))))
     : null;
 
-  // Select all / clear act on the level being shown.
+  // Select all / clear act on the rows being shown (the level, or the search results).
   const setAll = (on) => {
-    for (const row of rowsByLevel.get(level)) {
+    for (const row of visible) {
       const input = row.querySelector('input');
       input.checked = on;
       if (on) chosen.add(input.dataset.set);
@@ -234,6 +291,20 @@ export async function renderPractice() {
     h('button', { class: 'text-btn', type: 'button', onclick: () => setAll(false) }, t.selectNone));
   setsTitle.classList.add('sets-title');
 
+  // ---- recommended next set ----
+  const rec = nextSet(info, level);
+  const recCard = rec
+    ? h('button', { class: 'next-card', type: 'button', onclick: () => playSet(vocab, rec.set.id) },
+        h('span', { class: 'set-ic', 'aria-hidden': 'true' }, rec.set.icon),
+        h('span', { class: 'row-text' },
+          h('span', { class: 'next-label' }, icon('sparkles', { size: 14 }), t.nextUp),
+          h('span', { class: 'row-label' }, nameOf(rec.set.name)),
+          h('span', { class: 'row-sub' }, `${t.levelN.replace('{n}', levelOf(rec.set))} · ${t.mastered} ${rec.mastered}/${rec.total}`),
+          h('span', { class: 'meter thin' }, h('span', { class: 'meter-fill', style: `width:${(rec.mastered / rec.total) * 100}%` }))),
+        h('span', { class: 'next-play', 'aria-hidden': 'true' }, icon('play', { size: 18, fill: true })),
+        h('span', { class: 'sr-only' }, t.practiceThisSet))
+    : null;
+
   showLevel();
   refreshFoot();
 
@@ -241,7 +312,7 @@ export async function renderPractice() {
     pageHead(t.practiceTitle, { sub: t.practiceSub }),
     langSwitch,
     todayCard,
-    summary,
+    recCard,
     isIOS() && !isStandalone()
       ? h('a', { class: 'install-card', href: '#/help/install' },
           h('span', { class: 'row-icon blue' }, icon('share', { size: 18 })),
@@ -253,6 +324,7 @@ export async function renderPractice() {
     modeDesc,
     h('section', { class: 'sets-col' },
       setsTitle,
+      h('label', { class: 'search-box' }, icon('search', { size: 18 }), search),
       levelSeg,
       levelInfo,
       setsList,

@@ -3,6 +3,7 @@ import { uiFor } from './i18n.js';
 import { settings } from './store.js';
 import { speak, unlock, speechSupported } from './speech.js';
 import { icon } from './icons.js';
+import { unlockSound } from './sound.js';
 
 export const state = {
   index: null, // data/languages.json
@@ -73,6 +74,11 @@ export async function loadLang(code) {
   return data;
 }
 
+// Already loaded vocabulary, for code that can't await (e.g. badges on the results screen).
+export function cachedLang(code) {
+  return vocabCache.get(code) || null;
+}
+
 export function loadAllLangs() {
   return Promise.all(state.index.learn.map((l) => loadLang(l.code)));
 }
@@ -97,6 +103,7 @@ export function setUiLang() {
 export function ensureAudio() {
   if (!audioUnlocked) {
     unlock();
+    unlockSound();
     audioUnlocked = true;
   }
 }

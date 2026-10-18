@@ -38,10 +38,19 @@ const P = {
   layers: '<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/>',
   list: '<path d="M9 6h12M9 12h12M9 18h12"/><path d="M4 6h.01M4 12h.01M4 18h.01"/>',
   book:'<path d="M2 5h7a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H2z"/><path d="M22 5h-7a3 3 0 0 0-3 3v12a2 2 0 0 1 2-2h8z"/>',
+  music: '<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>',
+  shuffle: '<path d="M16 3h5v5"/><path d="M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/>',
+  crown: '<path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z"/><path d="M5 19h14"/>',
+  trophy: '<path d="M8 4h8v6a4 4 0 0 1-8 0z"/><path d="M8 6H4.5v1A3.5 3.5 0 0 0 8 10.5"/><path d="M16 6h3.5v1a3.5 3.5 0 0 1-3.5 3.5"/><path d="M12 14v4"/><path d="M8 21h8"/><path d="M9.5 18h5"/>',
+  bolt: '<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
+  undo: '<path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/>',
+  bulb: '<path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
+  medal: '<circle cx="12" cy="15" r="6"/><path d="M8.5 10L6 3h4l2 5"/><path d="M15.5 10L18 3h-4l-2 5"/><path d="M12 12.5v5"/>',
 };
 
 // Mode → icon name
-export const MODE_ICON = { flash: 'flash', quiz: 'quiz', reverse: 'reverse', listen: 'listen', type: 'type', match: 'match' };
+export const MODE_ICON = { mix: 'shuffle', flash: 'flash', quiz: 'quiz', reverse: 'reverse', listen: 'listen', type: 'type', match: 'match' };
 
 const NS = 'http://www.w3.org/2000/svg';
 

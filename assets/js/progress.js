@@ -3,6 +3,7 @@ import { settings, saveSettings, wordKey, getProgress, getStats, dayKey, MASTERE
 import { state, h, render, nameOf, levelOf, loadAllLangs, loadLang, langMeta, answerOf, speakerBtn, readingText, pageHead, groupTitle } from './core.js';
 import { itemsFor, startGame } from './game.js';
 import { icon, MODE_ICON } from './icons.js';
+import { badgeList } from './badges.js';
 
 const CHART_DAYS = 14;
 
@@ -214,13 +215,28 @@ function bySet(s) {
         h('span', { class: 'muted' }, `${mastered}/${total}`)),
       h('ul', { class: 'group list' }, sets.map((x) =>
         h('li', { class: 'row' },
-          h('span', { class: 'set-ic', 'aria-hidden': 'true' }, x.set.icon),
+          h('span', { class: 'set-ic', 'aria-hidden': 'true' }, x.set.icon,
+            x.mastered === x.total ? h('span', { class: 'set-crown' }, icon('crown', { size: 12 })) : null),
           h('span', { class: 'row-text' },
             h('span', { class: 'sp-head' }, h('span', { class: 'row-label' }, nameOf(x.set.name)), h('span', { class: 'row-sub' }, `${x.mastered}/${x.total}`)),
             distribution(x, { legend: false })),
         ))),
     ];
   });
+}
+
+// Earned badges in colour, locked ones grey with how far along they are.
+function badgeGrid(lang) {
+  const t = state.t;
+  const list = badgeList(lang);
+  return [
+    groupTitle(t.badges, h('span', { class: 'muted' }, `${list.filter((b) => b.earned).length}/${list.length}`)),
+    h('div', { class: 'badge-grid' }, list.map((b) =>
+      h('div', { class: `badge-tile${b.earned ? ' earned' : ''}`, 'aria-label': `${b.name}${b.earned ? '' : ` ${b.have}/${b.need}`}` },
+        h('span', { class: `badge-ic ${b.color}` }, icon(b.icon, { size: 22 })),
+        h('span', { class: 'badge-name' }, b.name),
+        b.earned ? null : h('span', { class: 'badge-prog' }, `${b.have}/${b.need}`)))),
+  ];
 }
 
 function renderLang(s) {
@@ -260,6 +276,7 @@ function renderLang(s) {
       tile('flame', `${streak(totals)}`, t.streak, t.days),
     ),
     h('section', { class: 'card' }, distribution(s)),
+    badgeGrid(code),
     groupTitle(t.last14),
     h('section', { class: 'card' }, activityChart(totals)),
     bySet(s),

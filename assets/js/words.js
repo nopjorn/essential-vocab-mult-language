@@ -1,8 +1,7 @@
 // Word list of one set (#/words/<lang>/<setId>), opened from the list icon on a Home set row.
-import { settings, saveSettings, wordKey, getProgress, setKnown, MASTERED_BOX } from './store.js';
-import { state, h, render, nameOf, loadLang, setUiLang, ensureAudio, pageHead, groupTitle, readingText, answerOf, speakerBtn, toast } from './core.js';
-import { speechSupported } from './speech.js';
-import { itemsFor, pickItems, startGame } from './game.js';
+import { settings, wordKey, getProgress, setKnown, MASTERED_BOX } from './store.js';
+import { state, h, render, nameOf, loadLang, setUiLang, pageHead, groupTitle, readingText, answerOf, speakerBtn } from './core.js';
+import { playSet } from './practice.js';
 import { icon } from './icons.js';
 
 export async function renderWords(code, setId) {
@@ -30,14 +29,7 @@ export async function renderWords(code, setId) {
   const subText = () => `${set.words.length} ${t.words} · ${t.mastered} ${set.words.filter(isKnown).length}`;
   const sub = h('p', { class: 'page-sub words-sub' }, subText());
 
-  const practiceSet = () => {
-    ensureAudio(); // iOS only allows speech after a tap
-    settings.lang = code;
-    if (settings.mode === 'listen' && !speechSupported) settings.mode = 'quiz';
-    saveSettings();
-    const items = itemsFor(vocab, [set.id]);
-    startGame(pickItems(items, settings.count), items);
-  };
+  const practiceSet = () => playSet(vocab, set.id);
 
   // Tap to mark a word as already known (mastered); tap again to put it back to new.
   const knownBtn = (word) => {

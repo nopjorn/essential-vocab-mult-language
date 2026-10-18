@@ -11,7 +11,8 @@ Safari or as a Home Screen app.
 - Learn: English 🇬🇧 (85 sets, 3,291 words), Korean 🇰🇷 (86 sets, 3,216), Japanese 🇯🇵 (85 sets, 3,174),
   each in 3 levels (≈1,000 words per level)
 - Translate into: Thai (all languages); English (Korean and Japanese)
-- 6 modes: flash, quiz, reverse, listen, type, match; Leitner boxes 0–5 (box ≥ 3 = mastered)
+- 7 modes: mix (default; a different mode per question), flash, quiz, reverse, listen, type, match; Leitner boxes 0–5 (box ≥ 3 = mastered)
+- Game feel: combo counter, Web Audio sound effects (Settings toggle), pop/shake feedback, match timer with best time, badges
 - Native-app style UI: bottom tab bar (Home · Progress · **Start** · Guide · Settings; Start is a raised round
   button that starts a round from any tab), iOS large titles, inset grouped lists, full-screen games,
   swipeable flashcards (right = known, left = not yet)
@@ -43,15 +44,20 @@ The CI (`.github/workflows/ci.yml`) and `scripts/validate.mjs` enforce most of t
 ## What the app can do
 
 - **Learn** English, Korean, Japanese (3 levels each, ≈3,000 words per language); translations in Thai, and English for Korean/Japanese
-- **Home**: language switch, Today card (daily-goal ring, streak, Continue / Quick 5), summary card, mode tiles,
-  level switch, multi-select word sets
+- **Welcome** (first run only): 3 steps to pick language, level and daily goal (Skip keeps defaults)
+- **Home**: language switch, Today card (daily-goal ring, streak, Continue / Quick 5, mastered + accuracy footer),
+  "Up next" recommended set (plays it alone), mode tiles (Mixed is the wide suggested tile), search for sets and the
+  words inside them, level switch, multi-select word sets (fully mastered sets get a gold crown)
 - **Word list of a set** (list icon on a set row): every word with reading, translation, note and speaker;
   tap the circle to mark a word as already known (mastered, undoable; not counted as an answer);
   "Practice this set" plays only that set
-- **6 game modes**: swipe flashcards, pick the meaning, pick the word, listen, type, match; Leitner review boxes 0–5
-- **Results screen**: animated ring, newly mastered words, comparison with the last game, goal progress
-- **Progress**: overview and per-language detail (tiles, per-level set bars, 14-day chart, weak words with one-tap practice, history)
-- **Settings**: translation/app language, questions per round, daily goal, reading, auto speak, theme, export/import progress backup (.json, merged on import), per-language reset, what's new
+- **7 game modes**: mixed, swipe flashcards (with undo), pick the meaning, pick the word, listen, type (with a hint),
+  match (timed, best-time record); Leitner review boxes 0–5. Combo counter with a burst every 5, sound effects,
+  options at the bottom of the screen on phones
+- **Results screen**: animated ring, newly mastered words, comparison with the last game, goal progress, best combo,
+  new records, newly earned badges
+- **Progress**: overview and per-language detail (tiles, badges, per-level set bars, 14-day chart, weak words with one-tap practice, history)
+- **Settings**: translation/app language, questions per round, daily goal, reading, auto speak, sound effects, theme, export/import progress backup (.json, merged on import), per-language reset, what's new
 - **PWA**: installable on iPhone/iPad, works offline, update toast, in-app guide
 
 ## Layout
@@ -64,22 +70,29 @@ manifest.webmanifest    PWA manifest (icons, maskable icon, shortcuts)
 assets/css/style.css    all styles; tokens on :root, dark tokens for data-theme / prefers-color-scheme
 assets/js/
   app.js        router (#/, #/progress[/lang], #/help[/section], #/settings, #/changelog, #/words/<lang>/<set>), tab bar + Start button,
-                update toasts, SW; leaving a game re-routes to the page it was started from
+                update toasts, SW; leaving a game re-routes to the page it was started from; first run shows welcome.js
   core.js       shared state (index, ui strings, navId), h() DOM helper, fill/render, loaders, pageHead/groupTitle,
                 speaker/term widgets, toast
-  practice.js   Home tab: language switch, Today card (daily-goal ring, streak, Continue / Quick 5), summary card, mode tiles,
-                set list + selection summary;
-                startPractice() (used by the tab bar Start button; sends you Home if the selection can't start)
-  settings.js   Settings tab: translation/app language, questions per round, reading, auto speak, theme,
+  practice.js   Home tab: language switch, Today card (daily-goal ring, streak, Continue / Quick 5, progress footer),
+                Up next card, mode tiles, set search + list + selection summary;
+                startPractice() (used by the tab bar Start button; sends you Home if the selection can't start),
+                playSet() (one set on its own; Up next card and word list)
+  settings.js   Settings tab: translation/app language, questions per round, reading, auto speak, sound effects, theme,
                 daily goal, progress export/import, per-language reset, about (version, what's new, guide, install)
-  game.js       item building, weighted picking, distractors, all 6 modes (swipe flashcards), results screen (animated ring, newly mastered words, vs last game, goal progress, confetti)
+  game.js       item building, weighted picking, distractors, all 7 modes (mix picks quiz/reverse/listen, type once box ≥ 2),
+                combo + bursts, flashcard undo (store.undoRecord), type hint, match timer/record, results screen
+                (animated ring, newly mastered words, vs last game, goal progress, best combo, records, new badges, confetti)
+  sound.js      Web Audio sound effects sfx(name) (no audio files; settings.sound), buzz() vibration where supported
+  badges.js     badges per language computed from progress/stats (streak, words, sets, combo); badgeList(), earnedIds()
+  welcome.js    first-run welcome (language, level, daily goal); shown while store.firstRun and not finished
   icons.js      hand-drawn SVG line icons (icon(name)), MODE_ICON map
   words.js      word list of one set (#/words/<lang>/<set>, opened from the list icon on a Home set row; Practice this set)
-  progress.js   progress overview + per-language detail (tiles, stacked bars, 14-day chart, weak words)
+  progress.js   progress overview + per-language detail (tiles, badges, stacked bars, 14-day chart, weak words)
   info.js       guide and changelog pages
   guide.js      guide content {th, en}
   i18n.js       UI strings {th, en}; uiFor(code) falls back to Thai
-  store.js      localStorage: settings, per-word progress, daily stats, sessions, last seen version; exportData()/importData() backup (merge)
+  store.js      localStorage: settings, per-word progress, daily stats, sessions, records, last seen version; firstRun;
+                record() returns an undo token for undoRecord(); exportData()/importData() backup (merge)
   theme.js      applyTheme(), theme segmented control (used in Settings)
   speech.js     Web Speech API wrapper (iOS needs a user tap before first speech)
   app-info.js   APP_VERSION/APP_BUILD, versionLabel(), isIOS/isStandalone
@@ -139,13 +152,15 @@ NGSL/NAWL (CC BY-SA), TOPIK/JLPT or other published lists.
 - CSS class names are global: check `grep` before adding one (e.g. `.stack` once clipped the
   results buttons because the progress bar used the same name).
 - UI text goes in `i18n.js` (both `th` and `en`); pages read it through `state.t`.
-- Storage keys: `evocab.settings.v1` (includes `dailyGoal`, default 20 answers/day), `evocab.progress.v1` (`lang|setId|term` → `{b,c,w,t}`),
-  `evocab.stats.v1` (`days[YYYY-MM-DD][lang] = [answers, correct]`, `sessions[]`), `evocab.lastVersion`.
+- Storage keys: `evocab.settings.v1` (includes `dailyGoal`, default 20 answers/day, and `sound`), `evocab.progress.v1` (`lang|setId|term` → `{b,c,w,t}`),
+  `evocab.stats.v1` (`days[YYYY-MM-DD][lang] = [answers, correct]`, `sessions[]`, `records[lang] = {match: best secs, combo}`), `evocab.lastVersion`.
+  Badges are computed, not stored. A device with neither settings nor progress saved gets the welcome screen.
   Changing a format needs a migration and a major version bump.
 - Distractors must differ from the answer in both term and translation (homonyms like 눈 eye/snow).
 - iOS: touch targets ≥ 44px, inputs ≥ 16px font (no zoom), respect `env(safe-area-inset-*)`,
   `100dvh`; test portrait and landscape. iPad landscape (≥1024px) shows the Home tab in 2 columns.
   The Start button rises `--fab-rise` above the tab bar on phones (a pill inside the bar from 744px); the toast sits above it.
+- Sounds come from `sfx()` in sound.js (oscillator notes, no files); `ensureAudio()` unlocks speech and audio on the first tap.
 - Theme: `data-theme="light|dark"` on `<html>` forces a theme; no attribute = follow system.
   New colors need light tokens on `:root` and dark tokens in **both** dark blocks.
 - Comments explain why, not what. Match the existing style.

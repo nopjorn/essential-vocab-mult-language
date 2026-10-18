@@ -31,13 +31,24 @@ const DEFAULT_SETTINGS = {
   target: 'th',
   sets: {}, // { [lang]: [setId, ...] }
   level: {}, // { [lang]: 1 | 2 | 3 } level shown in the word-set list
-  mode: 'quiz',
+  mode: 'mix',
   count: 10,
   dailyGoal: 20, // answers per day; the Home ring fills toward it
   showRoman: true,
   autoSpeak: true,
+  sound: true, // short sound effects for right/wrong answers and combos
   theme: 'system', // 'system' | 'light' | 'dark'
 };
+
+// Nothing saved yet on this device: show the welcome screen instead of Home.
+// Blocked storage reads as "not first run" so the welcome never loops.
+export const firstRun = (() => {
+  try {
+    return !localStorage.getItem(SETTINGS_KEY) && !localStorage.getItem(PROGRESS_KEY);
+  } catch {
+    return false;
+  }
+})();
 
 export const settings = { ...DEFAULT_SETTINGS, ...load(SETTINGS_KEY, {}) };
 
@@ -60,7 +71,8 @@ export function getProgress(key) {
 // ---------- activity stats ----------
 // days: { 'YYYY-MM-DD': { [lang]: [answers, correct] } }
 // sessions: [{ lang, mode, n, c, s: seconds, t: timestamp }], newest last
-const stats = { days: {}, sessions: [], ...load(STATS_KEY, {}) };
+// records: { [lang]: { match: fastest full match round in seconds, combo: longest answer streak } }
+const stats = { days: {}, sessions: [], records: {}, ...load(STATS_KEY, {}) };
 
 export function dayKey(d = new Date()) {
   const p = (n) => String(n).padStart(2, '0');
@@ -68,7 +80,9 @@ export function dayKey(d = new Date()) {
 }
 
 // Leitner-style boxes: correct moves the word up one box, wrong sends it back to box 0.
+// Returns what undoRecord() needs to take the answer back (flashcard undo).
 export function record(key, isCorrect) {
+  const undo = { key, prev: progress[key], day: dayKey(), ok: isCorrect };
   const p = { ...getProgress(key) };
   if (isCorrect) {
     p.b = Math.min(MAX_BOX, p.b + 1);
@@ -87,6 +101,34 @@ export function record(key, isCorrect) {
   d[0] += 1;
   if (isCorrect) d[1] += 1;
   save(STATS_KEY, stats);
+  return undo;
+}
+
+export function undoRecord({ key, prev, day, ok }) {
+  if (prev) progress[key] = prev;
+  else delete progress[key];
+  save(PROGRESS_KEY, progress);
+  const d = stats.days[day]?.[key.split('|')[0]];
+  if (d) {
+    d[0] = Math.max(0, d[0] - 1);
+    if (ok) d[1] = Math.max(0, d[1] - 1);
+  }
+  save(STATS_KEY, stats);
+}
+
+export function getRecords(lang) {
+  return stats.records[lang] || {};
+}
+
+// Saves a personal best and returns true when it beats the old one
+// (match: lower seconds is better, combo: higher is better).
+export function saveRecord(lang, kind, value) {
+  const r = (stats.records[lang] ||= {});
+  const better = kind === 'match' ? !(r.match <= value) : !(r.combo >= value);
+  if (!better) return false;
+  r[kind] = value;
+  save(STATS_KEY, stats);
+  return true;
 }
 
 // "I already know this word" from the word list: moves it straight to the mastered box, or
@@ -121,6 +163,7 @@ export function resetLanguage(lang) {
   }
   for (const day of Object.values(stats.days)) delete day[lang];
   stats.sessions = stats.sessions.filter((s) => s.lang !== lang);
+  delete stats.records[lang];
   save(PROGRESS_KEY, progress);
   save(STATS_KEY, stats);
 }
@@ -176,6 +219,14 @@ export function importData(data) {
     }
     stats.sessions.sort((a, b) => (a.t || 0) - (b.t || 0));
     if (stats.sessions.length > MAX_SESSIONS) stats.sessions.splice(0, stats.sessions.length - MAX_SESSIONS);
+  }
+  const records = data.stats?.records;
+  if (records && typeof records === 'object') {
+    for (const [lang, r] of Object.entries(records)) {
+      if (!r || typeof r !== 'object') continue;
+      if (num(r.match) > 0) saveRecord(lang, 'match', r.match);
+      if (num(r.combo) > 0) saveRecord(lang, 'combo', r.combo);
+    }
   }
   save(PROGRESS_KEY, progress);
   save(STATS_KEY, stats);
