@@ -1,10 +1,10 @@
 // Settings tab: learning options, display, learning data and about (iOS-style grouped list).
-import { settings, saveSettings, resetLanguage } from './store.js';
+import { settings, saveSettings, resetLanguage, exportData, importData, dayKey, BACKUP_FORMAT } from './store.js';
 import { state, h, render, nameOf, pageHead, groupTitle, setUiLang, loadLang, speechTag, toast } from './core.js';
 import { speechSupported, hasVoice } from './speech.js';
 import { themeControl } from './theme.js';
 import { icon } from './icons.js';
-import { versionLabel } from './app-info.js';
+import { versionLabel, APP_VERSION } from './app-info.js';
 
 const COUNTS = [10, 20, 30, 0]; // 0 = all
 const GOALS = [10, 20, 50, 100];
@@ -42,6 +42,45 @@ function linkRow(href, ic, color, label, value) {
     value ? h('span', { class: 'row-value' }, value) : null,
     icon('chevronRight', { size: 18, cls: 'chev' }),
   );
+}
+
+// Hands the backup to the share sheet when the browser can share files (iOS), otherwise downloads it.
+async function exportProgress(t) {
+  const name = `essential-vocab-${dayKey()}.json`;
+  const file = new File([JSON.stringify(exportData(APP_VERSION))], name, { type: 'application/json' });
+  try {
+    if (navigator.canShare?.({ files: [file] })) {
+      await navigator.share({ files: [file], title: name });
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    const a = h('a', { href: url, download: name });
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    toast(t.exportDone);
+  } catch {
+    /* share sheet dismissed: nothing to report */
+  }
+}
+
+async function importProgress(file, t) {
+  if (!file) return;
+  let words = null;
+  try {
+    const data = JSON.parse(await file.text());
+    if (data?.format !== BACKUP_FORMAT) throw new Error('bad');
+    if (!confirm(t.importConfirm.replace('{file}', file.name))) return;
+    words = importData(data);
+  } catch {
+    /* falls through to the error toast */
+  }
+  if (words === null) toast(t.importBad);
+  else {
+    toast(t.importDone.replace('{n}', words));
+    renderSettings();
+  }
 }
 
 export async function renderSettings() {
@@ -154,7 +193,23 @@ export async function renderSettings() {
     ),
 
     groupTitle(t.groupData),
-    h('div', { class: 'group' }, resetRows),
+    h('div', { class: 'group' },
+      h('button', { class: 'row', type: 'button', onclick: () => exportProgress(t) },
+        rowIcon('download', 'blue'), rowText(t.exportData, t.exportDataSub),
+        icon('chevronRight', { size: 18, cls: 'chev' })),
+      h('label', { class: 'row' },
+        rowIcon('upload', 'green'), rowText(t.importData, t.importDataSub),
+        icon('chevronRight', { size: 18, cls: 'chev' }),
+        h('input', {
+          type: 'file',
+          class: 'sr-only',
+          accept: 'application/json,.json',
+          onchange: (e) => {
+            importProgress(e.target.files[0], t);
+            e.target.value = '';
+          },
+        })),
+      resetRows),
     h('p', { class: 'group-foot' }, t.dataNote),
 
     groupTitle(t.groupAbout),

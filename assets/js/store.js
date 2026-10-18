@@ -125,6 +125,63 @@ export function resetLanguage(lang) {
   save(STATS_KEY, stats);
 }
 
+// ---------- backup (export / import) ----------
+export const BACKUP_FORMAT = 'evocab-backup';
+
+export function exportData(version) {
+  return {
+    format: BACKUP_FORMAT,
+    v: 1,
+    appVersion: version,
+    exportedAt: new Date().toISOString(),
+    progress,
+    stats,
+  };
+}
+
+const num = (x) => (Number.isFinite(x) && x >= 0 ? x : 0);
+
+// Merges a backup into this device instead of replacing it, so importing never loses newer
+// answers: per word the most recently seen record wins, per day/language the larger count wins.
+// Returns the number of words touched, or null when the file is not a valid backup.
+export function importData(data) {
+  if (!data || data.format !== BACKUP_FORMAT || data.v !== 1) return null;
+  if (typeof data.progress !== 'object' || !data.progress) return null;
+  let words = 0;
+  for (const [key, p] of Object.entries(data.progress)) {
+    if (key.split('|').length !== 3 || !p || typeof p !== 'object') continue;
+    const inc = { b: Math.min(MAX_BOX, Math.floor(num(p.b))), c: num(p.c), w: num(p.w), t: num(p.t) };
+    if (!progress[key] || inc.t > progress[key].t) {
+      progress[key] = inc;
+      words++;
+    }
+  }
+  const days = data.stats?.days;
+  if (days && typeof days === 'object') {
+    for (const [date, langs] of Object.entries(days)) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !langs || typeof langs !== 'object') continue;
+      const day = (stats.days[date] ||= {});
+      for (const [lang, a] of Object.entries(langs)) {
+        if (!Array.isArray(a)) continue;
+        const inc = [num(a[0]), num(a[1])];
+        if (!day[lang] || inc[0] > day[lang][0]) day[lang] = inc;
+      }
+    }
+  }
+  if (Array.isArray(data.stats?.sessions)) {
+    const seen = new Set(stats.sessions.map((s) => `${s.lang}|${s.mode}|${s.t}`));
+    for (const s of data.stats.sessions) {
+      if (!s || typeof s.lang !== 'string' || !seen.add(`${s.lang}|${s.mode}|${s.t}`)) continue;
+      stats.sessions.push(s);
+    }
+    stats.sessions.sort((a, b) => (a.t || 0) - (b.t || 0));
+    if (stats.sessions.length > MAX_SESSIONS) stats.sessions.splice(0, stats.sessions.length - MAX_SESSIONS);
+  }
+  save(PROGRESS_KEY, progress);
+  save(STATS_KEY, stats);
+  return words;
+}
+
 export function getLastVersion() {
   return load('evocab.lastVersion', null);
 }
