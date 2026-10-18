@@ -1,5 +1,17 @@
 [
   {
+    "version": "1.6.1",
+    "date": "2026-10-18",
+    "changes": {
+      "th": [
+        "แก้วงแหวนเป้าหมายรายวันในหน้าหลักที่ตัวเลขล้นขอบเมื่อตอบเกินเป้าหมาย (เช่น 151/20) ตอนนี้ตัวเลขอยู่กลางวงและย่อขนาดอัตโนมัติ"
+      ],
+      "en": [
+        "Fixed the daily-goal ring on Home overflowing when you go far past the goal (e.g. 151/20); the count is now centered and shrinks to fit"
+      ]
+    }
+  },
+  {
     "version": "1.6.0",
     "date": "2026-10-18",
     "changes": {

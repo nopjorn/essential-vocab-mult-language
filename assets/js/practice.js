@@ -104,7 +104,7 @@ export async function renderPractice() {
   const goalPct = goal ? Math.min(100, Math.round((done / goal) * 100)) : 0;
   const days = streak(dayTotals(code));
   const todayCard = h('section', { class: 'today-card' },
-    h('div', { class: `goal-ring${goal && done >= goal ? ' done' : ''}`, style: `--p:${goalPct}`, role: 'img', 'aria-label': `${t.todayGoal} ${done}/${goal}` },
+    h('div', { class: `goal-ring${goal && done >= goal ? ' done' : ''}${done >= 100 ? (done >= 1000 ? ' d4' : ' d3') : ''}`, style: `--p:${goalPct}`, role: 'img', 'aria-label': `${t.todayGoal} ${done}/${goal}` },
       h('b', {}, goal ? `${done}` : '–'), goal ? h('span', {}, `/${goal}`) : null),
     h('div', { class: 'today-text' },
       h('strong', {}, goal && done >= goal ? t.goalReached : done ? t.todayKeepGoing : t.todayStart),

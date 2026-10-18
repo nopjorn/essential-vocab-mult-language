@@ -2,6 +2,16 @@
 
 <!-- Generated from data/changelog.json by `node scripts/bump-version.mjs --sync`. Do not edit by hand. -->
 
+## [1.6.1] - 2026-10-18
+
+- แก้วงแหวนเป้าหมายรายวันในหน้าหลักที่ตัวเลขล้นขอบเมื่อตอบเกินเป้าหมาย (เช่น 151/20) ตอนนี้ตัวเลขอยู่กลางวงและย่อขนาดอัตโนมัติ
+
+<details><summary>English</summary>
+
+- Fixed the daily-goal ring on Home overflowing when you go far past the goal (e.g. 151/20); the count is now centered and shrinks to fit
+
+</details>
+
 ## [1.6.0] - 2026-10-18
 
 - ในหน้ารายการคำศัพท์ของชุด แตะวงกลมท้ายคำเพื่อทำเครื่องหมายว่า "รู้คำนี้แล้ว" ได้ทันที คำนั้นจะนับเป็นจำได้แล้ว (แตะอีกครั้งเพื่อยกเลิก)
