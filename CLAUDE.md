@@ -33,6 +33,26 @@ The CI (`.github/workflows/ci.yml`) and `scripts/validate.mjs` enforce most of t
 6. Run `node scripts/validate.mjs` (must print `OK`) and test in a browser (see Testing).
 7. **Commit messages and pull requests are written in Thai** (title and body). Code identifiers,
    file names and commands stay as they are, e.g. `v1.2.0: เพิ่มภาษาจีน และแก้บั๊กโหมดจับคู่`.
+8. **Features list**: keep "What the app can do" below and the feature list in `README.md` in step with the
+   code (add new abilities, drop removed ones).
+9. **Finish by merging to `main`** (standing instruction from the owner, no need to ask each time): when the
+   code is done and tested, commit in Thai, push the branch, open a PR into `main` (Thai title and body),
+   wait for CI to pass, then merge it. Steps 1–8 (version, changelog + `CHANGELOG.md`, guide, this file,
+   README) must be in that PR. If CI is red or the merge conflicts, fix it first; never skip checks.
+
+## What the app can do
+
+- **Learn** English, Korean, Japanese (3 levels each, ≈3,000 words per language); translations in Thai, and English for Korean/Japanese
+- **Home**: language switch, Today card (daily-goal ring, streak, Continue / Quick 5), summary card, mode tiles,
+  level switch, multi-select word sets
+- **Word list of a set** (list icon on a set row): every word with reading, translation, note and speaker;
+  tap the circle to mark a word as already known (mastered, undoable; not counted as an answer);
+  "Practice this set" plays only that set
+- **6 game modes**: swipe flashcards, pick the meaning, pick the word, listen, type, match; Leitner review boxes 0–5
+- **Results screen**: animated ring, newly mastered words, comparison with the last game, goal progress
+- **Progress**: overview and per-language detail (tiles, per-level set bars, 14-day chart, weak words with one-tap practice, history)
+- **Settings**: translation/app language, questions per round, daily goal, reading, auto speak, theme, per-language reset, what's new
+- **PWA**: installable on iPhone/iPad, works offline, update toast, in-app guide
 
 ## Layout
 
