@@ -2,6 +2,16 @@
 
 <!-- Generated from data/changelog.json by `node scripts/bump-version.mjs --sync`. Do not edit by hand. -->
 
+## [1.7.0] - 2026-10-18
+
+- หน้าการตั้งค่าเพิ่ม "ส่งออกความคืบหน้า" เป็นไฟล์สำรอง .json และ "นำเข้าความคืบหน้า" เพื่อกู้คืนหรือย้ายไปเครื่องอื่น (นำเข้าแบบรวมข้อมูล ไม่ทับคำตอบที่ใหม่กว่า)
+
+<details><summary>English</summary>
+
+- Settings now has "Export progress" to a .json backup file and "Import progress" to restore it or move to another device (imports are merged and never overwrite newer answers)
+
+</details>
+
 ## [1.6.1] - 2026-10-18
 
 - แก้วงแหวนเป้าหมายรายวันในหน้าหลักที่ตัวเลขล้นขอบเมื่อตอบเกินเป้าหมาย (เช่น 151/20) ตอนนี้ตัวเลขอยู่กลางวงและย่อขนาดอัตโนมัติ

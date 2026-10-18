@@ -51,7 +51,7 @@ The CI (`.github/workflows/ci.yml`) and `scripts/validate.mjs` enforce most of t
 - **6 game modes**: swipe flashcards, pick the meaning, pick the word, listen, type, match; Leitner review boxes 0–5
 - **Results screen**: animated ring, newly mastered words, comparison with the last game, goal progress
 - **Progress**: overview and per-language detail (tiles, per-level set bars, 14-day chart, weak words with one-tap practice, history)
-- **Settings**: translation/app language, questions per round, daily goal, reading, auto speak, theme, per-language reset, what's new
+- **Settings**: translation/app language, questions per round, daily goal, reading, auto speak, theme, export/import progress backup (.json, merged on import), per-language reset, what's new
 - **PWA**: installable on iPhone/iPad, works offline, update toast, in-app guide
 
 ## Layout
@@ -71,7 +71,7 @@ assets/js/
                 set list + selection summary;
                 startPractice() (used by the tab bar Start button; sends you Home if the selection can't start)
   settings.js   Settings tab: translation/app language, questions per round, reading, auto speak, theme,
-                daily goal, per-language reset, about (version, what's new, guide, install)
+                daily goal, progress export/import, per-language reset, about (version, what's new, guide, install)
   game.js       item building, weighted picking, distractors, all 6 modes (swipe flashcards), results screen (animated ring, newly mastered words, vs last game, goal progress, confetti)
   icons.js      hand-drawn SVG line icons (icon(name)), MODE_ICON map
   words.js      word list of one set (#/words/<lang>/<set>, opened from the list icon on a Home set row; Practice this set)
@@ -79,7 +79,7 @@ assets/js/
   info.js       guide and changelog pages
   guide.js      guide content {th, en}
   i18n.js       UI strings {th, en}; uiFor(code) falls back to Thai
-  store.js      localStorage: settings, per-word progress, daily stats, sessions, last seen version
+  store.js      localStorage: settings, per-word progress, daily stats, sessions, last seen version; exportData()/importData() backup (merge)
   theme.js      applyTheme(), theme segmented control (used in Settings)
   speech.js     Web Speech API wrapper (iOS needs a user tap before first speech)
   app-info.js   APP_VERSION/APP_BUILD, versionLabel(), isIOS/isStandalone
