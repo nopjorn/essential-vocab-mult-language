@@ -8,6 +8,7 @@ import { renderProgress } from './progress.js';
 import { renderWords } from './words.js';
 import { renderSettings } from './settings.js';
 import { renderHelp, renderChangelog } from './info.js';
+import { needsWelcome, renderWelcome } from './welcome.js';
 import { setExitHandler, onKeys } from './game.js';
 import { applyTheme } from './theme.js';
 import { icon } from './icons.js';
@@ -41,6 +42,14 @@ function route() {
   onKeys(null);
   document.body.classList.remove('in-game');
   setUiLang();
+  if (needsWelcome()) {
+    // Full screen like a game: no tab bar until the first-run choices are made.
+    document.body.classList.add('in-game');
+    return renderWelcome(() => {
+      if (location.hash && location.hash !== '#/') location.hash = '#/';
+      else route();
+    });
+  }
   const path = location.hash.replace(/^#\/?/, '');
   const [page = '', arg, arg2] = path.split('/');
   const tab = page === 'changelog' ? 'settings' : TABS.some(([p]) => p === page) ? page : '';

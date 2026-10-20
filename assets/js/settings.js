@@ -181,6 +181,7 @@ export async function renderSettings() {
         goalSeg),
       toggleRow('showRoman', 'eye', 'teal', t.showReading, t.showReadingSub),
       speechSupported ? toggleRow('autoSpeak', 'speaker', 'orange', t.autoSpeak, t.autoSpeakSub) : null,
+      toggleRow('sound', 'music', 'indigo', t.soundFx, t.soundFxSub),
     ),
     h('p', { class: 'group-foot' }, t.translateHint),
     voiceNote ? h('p', { class: 'group-foot warn' }, voiceNote) : null,

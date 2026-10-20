@@ -1,10 +1,13 @@
 // Game modes and the results screen. Games run full screen (the tab bar is hidden).
-import { settings, wordKey, getProgress, record, logSession, getStats, todayAnswers, MAX_BOX, MASTERED_BOX } from './store.js';
+import { settings, wordKey, getProgress, record, undoRecord, getRecords, saveRecord, logSession, getStats, todayAnswers, MAX_BOX, MASTERED_BOX } from './store.js';
 import { state, h, fill, render, shuffle, say, speakerBtn, termBlock, readingText, answerOf, groupTitle } from './core.js';
-import { icon } from './icons.js';
+import { icon, MODE_ICON } from './icons.js';
+import { speechSupported } from './speech.js';
+import { sfx, buzz } from './sound.js';
 import { dayTotals, streak } from './progress.js';
+import { badgeList, earnedIds } from './badges.js';
 
-export const MODES = ['flash', 'quiz', 'reverse', 'listen', 'type', 'match'];
+export const MODES = ['mix', 'flash', 'quiz', 'reverse', 'listen', 'type', 'match'];
 const MATCH_PAIRS = 6;
 const SWIPE_RATIO = 0.28; // fraction of the card width that counts as a decision
 
@@ -84,6 +87,12 @@ export function startGame(items, pool) {
     correct: 0,
     wrong: [],
     mastered: new Map(), // words that reached the mastered box in this round
+    combo: 0, // correct answers in a row
+    bestCombo: 0,
+    comboEl: h('span', { class: 'combo', role: 'status' }),
+    history: [], // graded answers, newest last (flashcard undo)
+    matchRecord: null, // seconds, when a match round set a new personal best
+    badgesBefore: earnedIds(settings.lang),
     before: todayAnswers(settings.lang),
     startedAt: Date.now(),
   };
@@ -96,7 +105,7 @@ function exitGame() {
   onExit();
 }
 
-function topBar(session, label) {
+function topBar(session, label, extra = null) {
   const t = state.t;
   const total = session.items.length;
   const pct = Math.round((session.i / total) * 100);
@@ -104,17 +113,88 @@ function topBar(session, label) {
     h('button', { class: 'icon-btn', type: 'button', 'aria-label': t.quit, onclick: exitGame }, icon('close')),
     h('div', { class: 'progress', role: 'progressbar', 'aria-valuemin': '0', 'aria-valuemax': String(total), 'aria-valuenow': String(session.i) },
       h('div', { class: 'progress-fill', style: `width:${pct}%` })),
+    session.comboEl,
     h('span', { class: 'counter' }, label ?? `${Math.min(session.i + 1, total)}/${total}`),
+    extra,
   );
+}
+
+const COMBO_STEP = 5; // every 5 in a row gets a burst and a fanfare
+
+// The combo chip is one node reused across questions, so it can animate as answers come in.
+function updateCombo(session, bump = false) {
+  const n = session.combo;
+  const el = session.comboEl;
+  el.classList.toggle('on', n >= 2);
+  el.classList.toggle('hot', n >= COMBO_STEP * 2);
+  el.setAttribute('aria-label', `${state.t.combo} ${n}`);
+  fill(el, icon('flame', { size: 16 }), h('b', {}, `×${n}`));
+  if (!bump || n < 2) return;
+  el.classList.remove('bump');
+  void el.offsetWidth; // restart the animation
+  el.classList.add('bump');
+  if (n % COMBO_STEP === 0 && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const burst = h('div', { class: 'combo-burst', 'aria-hidden': 'true' }, icon('flame', { size: 26 }), state.t.comboBurst.replace('{n}', n));
+    document.body.append(burst);
+    setTimeout(() => burst.remove(), 1100);
+  }
 }
 
 function grade(session, item, ok) {
   const wasMastered = getProgress(item.key).b >= MASTERED_BOX;
-  record(item.key, ok);
+  const entry = {
+    item,
+    ok,
+    hadMastered: session.mastered.has(item.key),
+    wasWrong: session.wrong.includes(item),
+    combo: session.combo,
+    bestCombo: session.bestCombo,
+  };
+  entry.undo = record(item.key, ok);
+  session.history.push(entry);
   if (!wasMastered && getProgress(item.key).b >= MASTERED_BOX) session.mastered.set(item.key, item);
   else if (!ok) session.mastered.delete(item.key);
   if (ok) session.correct++;
   else if (!session.wrong.includes(item)) session.wrong.push(item);
+  session.combo = ok ? session.combo + 1 : 0;
+  session.bestCombo = Math.max(session.bestCombo, session.combo);
+  updateCombo(session, ok);
+}
+
+// Takes back the last graded answer (progress, daily stats and this round's tallies).
+function undoLast(session) {
+  const e = session.history.pop();
+  if (!e) return false;
+  undoRecord(e.undo);
+  if (e.ok) session.correct--;
+  if (!e.wasWrong) session.wrong = session.wrong.filter((x) => x !== e.item);
+  if (e.hadMastered) session.mastered.set(e.item.key, e.item);
+  else session.mastered.delete(e.item.key);
+  session.combo = e.combo;
+  session.bestCombo = e.bestCombo;
+  updateCombo(session);
+  session.i--;
+  return true;
+}
+
+function cheer(session, ok) {
+  if (!ok) {
+    sfx('bad');
+    buzz();
+  } else sfx(session.combo >= COMBO_STEP && session.combo % COMBO_STEP === 0 ? 'combo' : 'ok');
+}
+
+// Mixed mode picks a mode per word: typing only once a word is partly known (box 2+).
+function mixMode(item) {
+  const modes = ['quiz', 'reverse'];
+  if (speechSupported) modes.push('listen');
+  if (getProgress(item.key).b >= 2) modes.push('type', 'type');
+  return modes[Math.floor(Math.random() * modes.length)];
+}
+
+function modePill(session, mode) {
+  if (session.mode !== 'mix') return null;
+  return h('div', { class: 'mode-pill' }, icon(MODE_ICON[mode], { size: 16 }), state.t.modes[mode][0]);
 }
 
 function playNext(session) {
@@ -124,8 +204,9 @@ function playNext(session) {
     session.i++;
     playNext(session);
   };
-  const view = { flash: flashView, quiz: choiceView, reverse: choiceView, listen: choiceView, type: typeView }[session.mode];
-  view(session, item, advance);
+  const mode = session.mode === 'mix' ? mixMode(item) : session.mode;
+  const view = { flash: flashView, quiz: choiceView, reverse: choiceView, listen: choiceView, type: typeView }[mode];
+  view(session, item, advance, mode);
 }
 
 let keyHandler = null;
@@ -196,8 +277,16 @@ function flashView(session, item, advance) {
     stampAgain.style.opacity = ok ? 0 : 1;
     card.style.transform = `translate(${ok ? w * 1.4 : -w * 1.4}px, 20px) rotate(${ok ? 22 : -22}deg)`;
     grade(session, item, ok);
+    cheer(session, ok);
     setTimeout(advance, 280);
   }
+
+  function undo() {
+    if (busy || !undoLast(session)) return;
+    sfx('tap');
+    playNext(session);
+  }
+  const undoBtn = h('button', { class: 'icon-btn', type: 'button', 'aria-label': t.undo, title: t.undo, disabled: !session.history.length, onclick: undo }, icon('undo'));
 
   // Pointer drag (touch, pen and mouse). Small movement = tap = flip.
   let drag = null;
@@ -241,20 +330,20 @@ function flashView(session, item, advance) {
       icon('check', { size: 28 }), h('span', {}, t.remembered)),
   );
 
-  render(h('div', { class: 'game game-flash' }, topBar(session), deck, h('p', { class: 'swipe-hint' }, t.swipeHint), actions));
+  render(h('div', { class: 'game game-flash' }, topBar(session, null, undoBtn), deck, h('p', { class: 'swipe-hint' }, t.swipeHint), actions));
   onKeys((e) => {
     if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flip(); }
     else if (e.key === '1' || e.key === 'ArrowLeft') decide(false);
     else if (e.key === '2' || e.key === 'ArrowRight') decide(true);
+    else if (e.key === 'z' || e.key === 'Backspace') undo();
   });
   if (settings.autoSpeak) say(item.term);
 }
 
 // ---------- multiple choice (quiz / reverse / listen) ----------
 
-function choiceView(session, item, advance) {
+function choiceView(session, item, advance, mode) {
   const t = state.t;
-  const mode = session.mode;
   const options = shuffle([item, ...distractors(item, session.pool)]);
   let answered = false;
 
@@ -279,9 +368,10 @@ function choiceView(session, item, advance) {
     answered = true;
     const ok = opt === item;
     grade(session, item, ok);
+    cheer(session, ok);
     buttons.forEach((b, i) => {
       b.disabled = true;
-      if (options[i] === item) b.classList.add('right');
+      if (options[i] === item) b.classList.add('right', ok ? 'pop' : 'reveal-right');
       else if (i === idx) b.classList.add('wrong');
     });
     fill(feedback,
@@ -294,11 +384,14 @@ function choiceView(session, item, advance) {
     else nextBtn.classList.remove('hidden');
   }
 
-  render(h('div', { class: 'game' },
+  // Feedback sits between the prompt and the options, so on phones the options stay
+  // at the bottom of the screen within thumb reach.
+  render(h('div', { class: 'game choice' },
     topBar(session),
+    modePill(session, mode),
     prompt,
-    h('div', { class: 'options' }, buttons),
     feedback,
+    h('div', { class: 'options' }, buttons),
     h('div', { class: 'actions' }, nextBtn),
   ));
 
@@ -333,7 +426,13 @@ export function acceptedAnswers(item) {
   return [...new Set([item.term, item.reading, ...romanVariants(item.roman)].filter(Boolean).map(normalize))];
 }
 
-function typeView(session, item, advance) {
+// "_ _ _" clue: the first character of the word (and of its romanization), one blank per other character.
+function clueOf(item) {
+  const blanks = (s) => Array.from(s).map((c, i) => (i === 0 ? c : c === ' ' ? '\u2003' : '_')).join(' ');
+  return item.roman ? `${blanks(item.term)} · ${blanks(item.roman)}` : blanks(item.term);
+}
+
+function typeView(session, item, advance, mode) {
   const t = state.t;
   let answered = false;
   const input = h('input', {
@@ -350,6 +449,17 @@ function typeView(session, item, advance) {
   const feedback = h('div', { class: 'feedback', 'aria-live': 'polite' });
   const checkBtn = h('button', { class: 'btn primary', type: 'submit' }, t.check);
   const skipBtn = h('button', { class: 'btn', type: 'button', onclick: () => check(true) }, t.dontKnow);
+  const clue = h('p', { class: 'type-clue', 'aria-live': 'polite' });
+  const hintBtn = h('button', {
+    class: 'btn',
+    type: 'button',
+    onclick: () => {
+      if (answered) return;
+      hintBtn.disabled = true;
+      clue.textContent = clueOf(item);
+      input.focus({ preventScroll: true });
+    },
+  }, icon('bulb', { size: 18 }), t.hint);
 
   function check(skip = false) {
     if (answered) return advance();
@@ -358,8 +468,9 @@ function typeView(session, item, advance) {
     answered = true;
     const ok = !skip && acceptedAnswers(item).includes(v);
     grade(session, item, ok);
+    cheer(session, ok);
     input.readOnly = true;
-    input.classList.add(ok ? 'right' : 'wrong');
+    input.classList.add(ok ? 'right' : 'wrong', ok ? 'pop' : 'shake');
     fill(feedback,
       verdict(ok),
       h('div', { class: 'reveal' }, termBlock(item, { size: 'md', reading: true }), speakerBtn(item.term)),
@@ -368,6 +479,7 @@ function typeView(session, item, advance) {
     say(item.term);
     checkBtn.textContent = t.next;
     skipBtn.classList.add('hidden');
+    hintBtn.classList.add('hidden');
     checkBtn.focus({ preventScroll: true });
   }
 
@@ -377,10 +489,11 @@ function typeView(session, item, advance) {
       e.preventDefault();
       check();
     },
-  }, input, h('div', { class: 'actions two' }, skipBtn, checkBtn));
+  }, input, clue, h('div', { class: 'actions two' }, hintBtn, skipBtn, checkBtn));
 
   render(h('div', { class: 'game' },
     topBar(session),
+    modePill(session, mode),
     h('div', { class: 'prompt' }, h('div', { class: 'answer-big' }, item.answer)),
     form,
     h('p', { class: 'hint center' }, t.typeHint),
@@ -416,6 +529,19 @@ function playMatch(session) {
     let selL = null;
     let selR = null;
     let bar;
+
+    // Round timer; only full rounds (MATCH_PAIRS pairs) count toward the personal best.
+    const startedAt = performance.now();
+    const best = getRecords(session.lang).match;
+    const timeEl = h('b', {}, '0.0');
+    const timer = h('div', { class: 'match-timer' },
+      icon('clock', { size: 16 }), timeEl, h('span', {}, t.sec),
+      pairs.length === MATCH_PAIRS && best ? h('span', { class: 'muted' }, ` · ${t.best} ${best.toFixed(1)} ${t.sec}`) : null);
+    const elapsed = () => Math.round((performance.now() - startedAt) / 100) / 10;
+    const tick = setInterval(() => {
+      if (!timer.isConnected) return clearInterval(tick); // the player left the game
+      timeEl.textContent = elapsed().toFixed(1);
+    }, 100);
 
     const mk = (item, side) => {
       const b = h('button', {
@@ -458,26 +584,44 @@ function playMatch(session) {
           x.disabled = true;
         });
         grade(session, a.item, !missed.has(a.item));
+        // A late match of a missed word still sounds right: the miss already played the buzzer.
+        sfx(session.combo >= COMBO_STEP && session.combo % COMBO_STEP === 0 ? 'combo' : 'ok');
         doneCount++;
         left--;
         const nb = topBarMatch();
         bar.replaceWith(nb);
         bar = nb;
-        if (left === 0) setTimeout(() => { r++; playRound(); }, 500);
+        if (left === 0) {
+          clearInterval(tick);
+          const secs = elapsed();
+          timeEl.textContent = secs.toFixed(1);
+          const isRecord = pairs.length === MATCH_PAIRS && saveRecord(session.lang, 'match', secs);
+          if (isRecord) {
+            session.matchRecord = secs;
+            timer.classList.add('record');
+            fill(timer, icon('trophy', { size: 18 }), h('b', {}, `${t.newRecord} ${secs.toFixed(1)} ${t.sec}`));
+            sfx('combo');
+          }
+          setTimeout(() => { r++; playRound(); }, isRecord ? 1400 : 500);
+        }
       } else {
         missed.add(a.item);
+        session.combo = 0;
+        updateCombo(session);
         [a.btn, b.btn].forEach((x) => {
           x.classList.remove('sel');
           x.classList.add('shake');
           setTimeout(() => x.classList.remove('shake'), 400);
         });
-        if (navigator.vibrate) navigator.vibrate(60);
+        sfx('bad');
+        buzz(60);
       }
     }
 
     bar = topBarMatch();
     render(h('div', { class: 'game' },
       bar,
+      timer,
       h('div', { class: 'match-grid' }, h('div', { class: 'match-col' }, lefts), h('div', { class: 'match-col' }, rights)),
     ));
     onKeys(null);
@@ -544,6 +688,10 @@ function showResults(session) {
   const prev = getStats().sessions.filter((x) => x.lang === session.lang && x.n).at(-1);
   const prevPct = prev ? Math.round((prev.c / prev.n) * 100) : null;
   logSession({ lang: session.lang, mode: session.mode, n: total, c: session.correct, s: secs, t: Date.now() });
+  // Only call it a record when there was one to beat, not on the very first game.
+  const prevCombo = getRecords(session.lang).combo || 0;
+  const comboRecord = session.bestCombo >= 2 && saveRecord(session.lang, 'combo', session.bestCombo) && prevCombo > 0;
+  const newBadges = badgeList(session.lang).filter((b) => b.earned && !session.badgesBefore.has(b.id));
   const message = pct >= 90 ? t.resultGreat : pct >= 60 ? t.resultGood : t.resultKeep;
 
   const goal = settings.dailyGoal;
@@ -558,7 +706,17 @@ function showResults(session) {
     diff ? h('span', { class: `chip ${diff > 0 ? 'up' : 'down'}` }, `${diff > 0 ? '▲' : '▼'} ${Math.abs(diff)}% ${t.vsLast}`) : null,
     days ? h('span', { class: 'chip' }, icon('flame', { size: 14 }), `${days} ${t.days}`) : null,
     goal > 0 ? h('span', { class: `chip${today >= goal ? ' up' : ''}` }, icon('target', { size: 14 }), t.goalToday.replace('{n}', today).replace('{goal}', goal)) : null,
+    comboRecord ? h('span', { class: 'chip gold' }, icon('bolt', { size: 14 }), t.comboRecord.replace('{n}', session.bestCombo)) : null,
+    session.matchRecord ? h('span', { class: 'chip gold' }, icon('trophy', { size: 14 }), `${t.newRecord} ${session.matchRecord.toFixed(1)} ${t.sec}`) : null,
   );
+  const badgeBox = newBadges.length
+    ? h('div', { class: 'badge-box' },
+        h('strong', {}, icon('medal', { size: 18 }), t.newBadges),
+        h('div', { class: 'badge-chips' }, newBadges.map((b) =>
+          h('span', { class: 'badge-chip' }, h('span', { class: `row-icon ${b.color}` }, icon(b.icon, { size: 16 })), b.name))))
+    : null;
+  const celebrate = goalJustMet || pct === 100 || newBadges.length > 0 || comboRecord || !!session.matchRecord;
+  if (celebrate) sfx('done');
   const masteredBox = mastered.length
     ? h('div', { class: 'mastered-box' },
         h('strong', {}, icon('sparkles', { size: 18 }), t.newMastered.replace('{n}', mastered.length)),
@@ -581,15 +739,17 @@ function showResults(session) {
       h('span', { class: 'icon-btn-spacer' }),
     ),
     h('section', { class: 'result-hero' },
-      goalJustMet || pct === 100 ? confetti() : null,
+      celebrate ? confetti() : null,
       h('div', { class: 'ring-wrap' }, scoreRing(pct), h('div', { class: 'ring-label' }, pctNum, h('span', {}, t.accuracy))),
       h('p', { class: 'result-msg' }, goalJustMet ? t.goalReached : message),
       badges,
       h('div', { class: 'stats' },
         h('div', { class: 'stat' }, h('b', {}, `${session.correct}/${total}`), h('span', {}, t.score)),
         h('div', { class: 'stat' }, h('b', {}, `${secs} ${t.sec}`), h('span', {}, t.time)),
+        h('div', { class: 'stat' }, h('b', {}, `×${session.bestCombo}`), h('span', {}, t.bestCombo)),
       ),
     ),
+    badgeBox,
     masteredBox,
     groupTitle(t.reviewWrong),
     reviewList,
