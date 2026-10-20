@@ -64,6 +64,7 @@ The CI (`.github/workflows/ci.yml`) and `scripts/validate.mjs` enforce most of t
 
 ```
 index.html              shell: iOS meta, icons, launch screens, early theme script, loads version.js + app.js
+TODO.md                 idea backlog grouped by type of work (docs only: not deployed, no version bump)
 version.js              APP_VERSION (semver) + APP_BUILD ('dev'; CI stamps "<run>.<sha>")
 sw.js                   offline cache; cache name = version + build; CORE file list
 manifest.webmanifest    PWA manifest (icons, maskable icon, shortcuts)
